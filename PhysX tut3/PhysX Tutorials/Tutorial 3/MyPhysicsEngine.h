@@ -52,19 +52,20 @@ namespace PhysicsEngine
 	class Trampoline
 	{
 		vector<DistanceJoint*> springs;
-		Box *bottom, *top;
+		StaticBox* bottom;
+		Box* top;
 
 	public:
-		Trampoline(const PxVec3& dimensions=PxVec3(5.f,5.f,5.f), PxReal stiffness=1.f, PxReal damping=1.f)
+		Trampoline(PxReal x, PxReal z, const PxVec3& dimensions = PxVec3(5.f,5.f,5.f), PxReal stiffness = 100.0f, PxReal damping = 100.0f)
 		{
 			PxReal thickness = .1f;
-			bottom = new Box(PxTransform(PxVec3(0.f,thickness,0.f)),PxVec3(dimensions.x,thickness,dimensions.z));
-			top = new Box(PxTransform(PxVec3(0.f,dimensions.y+thickness,0.f)),PxVec3(dimensions.x,thickness,dimensions.z));
+			bottom = new StaticBox(PxTransform(PxVec3(x, thickness, z)),PxVec3(dimensions.x, thickness, dimensions.z));
+			top = new Box(PxTransform(PxVec3(x, dimensions.y+thickness, z)),PxVec3(dimensions.x, thickness, dimensions.z));
 			springs.resize(4);
-			springs[0] = new DistanceJoint(bottom, PxTransform(PxVec3(dimensions.x,thickness,dimensions.z)), top, PxTransform(PxVec3(dimensions.x,-dimensions.y,dimensions.z)));
-			springs[1] = new DistanceJoint(bottom, PxTransform(PxVec3(dimensions.x,thickness,-dimensions.z)), top, PxTransform(PxVec3(dimensions.x,-dimensions.y,-dimensions.z)));
-			springs[2] = new DistanceJoint(bottom, PxTransform(PxVec3(-dimensions.x,thickness,dimensions.z)), top, PxTransform(PxVec3(-dimensions.x,-dimensions.y,dimensions.z)));
-			springs[3] = new DistanceJoint(bottom, PxTransform(PxVec3(-dimensions.x,thickness,-dimensions.z)), top, PxTransform(PxVec3(-dimensions.x,-dimensions.y,-dimensions.z)));
+			springs[0] = new DistanceJoint(bottom, PxTransform(PxVec3(dimensions.x, thickness, dimensions.z)), top, PxTransform(PxVec3(dimensions.x,-dimensions.y,dimensions.z)));
+			springs[1] = new DistanceJoint(bottom, PxTransform(PxVec3(dimensions.x, thickness, -dimensions.z)), top, PxTransform(PxVec3(dimensions.x,-dimensions.y,-dimensions.z)));
+			springs[2] = new DistanceJoint(bottom, PxTransform(PxVec3(-dimensions.x, thickness, dimensions.z)), top, PxTransform(PxVec3(-dimensions.x,-dimensions.y,dimensions.z)));
+			springs[3] = new DistanceJoint(bottom, PxTransform(PxVec3(-dimensions.x, thickness, -dimensions.z)), top, PxTransform(PxVec3(-dimensions.x,-dimensions.y,-dimensions.z)));
 			for (unsigned int i = 0; i < springs.size(); i++)
 			{
 				springs[i]->Stiffness(stiffness);
@@ -189,6 +190,8 @@ namespace PhysicsEngine
 		Rectangle* rectangle;
 		StaticSphere* planet;
 		DynamSphere* meteor;
+		DynamSphere* Indicator;
+		RevoluteJoint* joint;
 		
 	public:
 		//specify your custom filter shader here
@@ -218,20 +221,26 @@ namespace PhysicsEngine
 
 			plane = new Plane();
 			rectangle = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
-			planet = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
+			planet = new StaticSphere(PxTransform(PxVec3(5.0f, 1.0f, 5.0f)), PxReal(2.0f), PxReal(1.0f));
 			meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
+			tramp = new Trampoline(50.0f, 50.0f);
+			//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -45.0f)));
 
 			plane->Color(PxVec3(210.f/255.f,210.f/255.f,210.f/255.f));
 			rectangle->Color(color_palette[2]);
 			planet->Color(color_palette[3]);
 			meteor->Color(color_palette[4]);
+			//Indicator->Color(color_palette[5]);
+
+			//joint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.f, 0.f, 1.f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
+			//joint->SetLimits(PxReal(10), PxReal(0));
 
 			Add(plane);
-			//Add(box);
-			//Add(box2);
 			Add(rectangle);
 			Add(planet);
 			Add(meteor);
+			tramp->AddToScene(this);
+			//Add(Indicator);
 
 			//// const PxVec3& dimensions=PxVec3(5.f,5.f,5.f), PxReal stiffness=1.f, PxReal damping=1.f
 			//tramp = new Trampoline(PxVec3(2.0f, 2.0f, 2.0f), PxReal(20.0f), PxReal(10.0f));
@@ -262,15 +271,16 @@ namespace PhysicsEngine
 			PxReal pz = planetPose.p.z;
 			PxReal mx = meteorPose.p.x;
 			PxReal mz = meteorPose.p.z;
-			cout << "Planet x:" << px << endl;
-			cout << "Planet z:" << pz << endl;
-			cout << "Meteor x:" << mx << endl;
-			cout << "Meteor z:" << mz << endl;
+
+			//cout << "Planet x:" << px << endl;
+			//cout << "Planet z:" << pz << endl;
+			//cout << "Meteor x:" << mx << endl;
+			//cout << "Meteor z:" << mz << endl;
 
 			PxReal x = PxAbs(px) - PxAbs(mx);
 			PxReal y = PxAbs(pz) - PxAbs(mz);
 			PxReal z = PxSqrt((x*x) + (y*y));
-			cout << z << "\n" << endl;
+			//cout << z << "\n" << endl;
 
 //			((PxRigidBody*)meteor->Get())->addForce(PxVec3(0.0, 0.0, 1.0) * 2);
 
@@ -278,22 +288,18 @@ namespace PhysicsEngine
 			{
 				if (mx > px)
 				{
-					cout << "activated" << endl;
 					((PxRigidBody*)meteor->Get())->addForce(PxVec3(-1.0, 0.0, 0.0) * 100);
 				}
 				if (mx < px)
 				{
-					cout << "activated" << endl;
 					((PxRigidBody*)meteor->Get())->addForce(PxVec3(1.0, 0.0, 0.0) * 100);
 				}
 				if (mz < pz)
 				{
-					cout << "activated" << endl;
 					((PxRigidBody*)meteor->Get())->addForce(PxVec3(0.0, 0.0, 1.0) * 100);
 				}
 				if (mz > pz)
 				{
-					cout << "activated" << endl;
 					((PxRigidBody*)meteor->Get())->addForce(PxVec3(0.0, 0.0, -1.0) * 100);
 				}
 			}

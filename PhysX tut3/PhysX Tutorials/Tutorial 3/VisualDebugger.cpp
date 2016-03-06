@@ -36,6 +36,7 @@ namespace VisualDebugger
 	void ToggleRenderMode();
 	void HUDInit();
 
+
 	///simulation objects
 	Camera* camera;
 	PhysicsEngine::MyScene* scene;
@@ -46,6 +47,9 @@ namespace VisualDebugger
 	bool key_state[MAX_KEYS];
 	bool hud_show = true;
 	HUD hud;
+	PxReal leftToRight = 0;
+	bool disableMove = false;
+	PxReal velocity = 1;
 
 	//Init the debugger
 	void Init(const char *window_name, int width, int height)
@@ -131,6 +135,7 @@ namespace VisualDebugger
 	{
 		//handle pressed keys
 		KeyHold();
+		PxReal leftToRight = 0;
 
 		//start rendering
 		Renderer::Start(camera->getEye(), camera->getDir());
@@ -229,13 +234,7 @@ namespace VisualDebugger
 
 	//handle force control keys
 	void ForceInput(int key)
-	{
-		PxReal x[] = { -1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-		PxReal z[] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-		PxReal velocity = 0;
-		int i = 10;
-		int j = 10;
-		
+	{	
 		if (!scene->GetSelectedActor())
 			return;
 
@@ -243,62 +242,38 @@ namespace VisualDebugger
 		{
 			// Force controls on the selected actor
 		case 'I': //forward
-			scene->GetSelectedActor()->addForce(PxVec3(0,0,1)*gForceStrength);
+			scene->GetSelectedActor()->addForce(PxVec3(0, 0, 1)*gForceStrength);
+			cout << "up";
 			break;
 		case 'K': //backward
-			scene->GetSelectedActor()->addForce(PxVec3(0,0,-1)*gForceStrength);
+			scene->GetSelectedActor()->addForce(PxVec3(0, 0, -1)*gForceStrength);
 			break;
 		case 'J': //left
-			scene->GetSelectedActor()->addForce(PxVec3(1,0,0)*gForceStrength);
+			scene->GetSelectedActor()->addForce(PxVec3(1, 0, 0)*gForceStrength);
 			break;
 		case 'L': //right
-			scene->GetSelectedActor()->addForce(PxVec3(-1,0,0)*gForceStrength);
+			scene->GetSelectedActor()->addForce(PxVec3(-1, 0, 0)*gForceStrength);
+			break;
+		case 'U': // Top Left
+			scene->GetSelectedActor()->addForce(PxVec3(2, 0, 1)*gForceStrength);
+			break;
+		case 'O': // Top Right
+			scene->GetSelectedActor()->addForce(PxVec3(-0.5, 0, 0)*gForceStrength);
 			break;
 		case ' ':
-			scene->GetSelectedActor()->addForce(PxVec3(x[i], 0, z[j])*velocity);
-			break;
-		case GLUT_KEY_UP:
-			velocity++;
-			break;
-		case GLUT_KEY_DOWN:
-			velocity--;
-		case GLUT_KEY_LEFT:
-			while (i < 20 && i > -1 && j < 11 && j > -1)
-			{
-				i--;
-				if (i > 10)
-				{
-					j++;
-				}
-				else
-				{
-					j--;
-				}
-			}
-			break;
-		case GLUT_KEY_RIGHT:
-			while (i < 20 && i > -1 && j < 11 && j > -1)
-			{
-				i++;
-				if (i < 10)
-				{
-					j++;
-				}
-				else 
-				{
-					j--;
-				}
-
-			}
+			disableMove = true;
+			scene->GetSelectedActor()->addForce(PxVec3(leftToRight, 0, 1) * velocity);
 			break;
 		default:
 			break;
 		}
 	}
+	
 
 	///handle special keys
 	void KeySpecial(int key, int x, int y)
 	{
+		bool AddOne = true;
 		//simulation control
 		switch (key)
 		{
@@ -332,6 +307,31 @@ namespace VisualDebugger
 		case GLUT_KEY_F12:
 			//resect scene
 			scene->Reset();
+			break;
+		case GLUT_KEY_LEFT:
+			while (leftToRight < 2 && disableMove == false)
+			{
+				leftToRight = leftToRight + 0.1;
+				cout << "Direction: " << leftToRight << endl;
+				break;
+			}
+			break;
+		case GLUT_KEY_RIGHT:
+			while (leftToRight > -2 && disableMove == false)
+			{
+
+				leftToRight = leftToRight - 0.1;
+				cout << "Direction: " << leftToRight << endl;
+				break;
+			}
+			break;
+		case GLUT_KEY_UP:
+			while (disableMove == false)
+			{
+				velocity++;
+				cout << "Velocity: " << velocity << endl;
+				break;
+			}
 			break;
 		default:
 			break;
