@@ -8,6 +8,7 @@
 namespace PhysicsEngine
 {
 	using namespace std;
+	//public bool triggerBool = false;
 
 	//a list of colours: Circus Palette
 	static const PxVec3 color_palette[] = {PxVec3(46.f/255.f,9.f/255.f,39.f/255.f),PxVec3(217.f/255.f,0.f/255.f,0.f/255.f),
@@ -115,6 +116,7 @@ namespace PhysicsEngine
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_LOST)
 					{
 						cerr << "onTrigger::eNOTIFY_TOUCH_LOST" << endl;
+						
 						trigger = false;
 					}
 				}
@@ -133,6 +135,7 @@ namespace PhysicsEngine
 				if (pairs[i].events & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 				{
 					cerr << "onContact::eNOTIFY_TOUCH_FOUND" << endl;
+					
 				}
 				//check eNOTIFY_TOUCH_LOST
 				if (pairs[i].events & PxPairFlag::eNOTIFY_TOUCH_LOST)
@@ -192,8 +195,11 @@ namespace PhysicsEngine
 		DynamSphere* meteor;
 		DynamSphere* Indicator;
 		RevoluteJoint* joint;
+		int Level = 0;
+
 		
 	public:
+		bool triggerBool = false;
 		//specify your custom filter shader here
 		//PxDefaultSimulationFilterShader by default
 		MyScene() : Scene() {};
@@ -210,37 +216,126 @@ namespace PhysicsEngine
 		//Custom scene initialisation
 		virtual void CustomInit() 
 		{
-			SetVisualisation();			
+			SetVisualisation();
+			switch (Level)
+			{
+			case 0:
+				// ==========
+				// Materials
+				// ==========
+				//PxMaterial* newMat = CreateMaterial(0.0f, 0.5f, 0.0f);
+				GetMaterial()->setDynamicFriction(0.0f);
 
-			//PxMaterial* newMat = CreateMaterial(0.0f, 0.5f, 0.0f);
-			GetMaterial()->setDynamicFriction(0.0f);
+				///Initialise and set the customised event callback
+				my_callback = new MySimulationEventCallback();
+				px_scene->setSimulationEventCallback(my_callback);
 
-			///Initialise and set the customised event callback
-			my_callback = new MySimulationEventCallback();
-			px_scene->setSimulationEventCallback(my_callback);
+				plane = new Plane();
+				rectangle = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				planet = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
+				tramp = new Trampoline(50.0f, 50.0f);
+				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 
-			plane = new Plane();
-			rectangle = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
-			planet = new StaticSphere(PxTransform(PxVec3(5.0f, 1.0f, 5.0f)), PxReal(2.0f), PxReal(1.0f));
-			meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
-			tramp = new Trampoline(50.0f, 50.0f);
-			//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -45.0f)));
+				//rectangle->Material(newMat);
 
-			plane->Color(PxVec3(210.f/255.f,210.f/255.f,210.f/255.f));
-			rectangle->Color(color_palette[2]);
-			planet->Color(color_palette[3]);
-			meteor->Color(color_palette[4]);
-			//Indicator->Color(color_palette[5]);
+				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+				rectangle->Color(color_palette[2]);
+				planet->Color(color_palette[3]);
+				meteor->Color(color_palette[4]);
+				//Indicator->Color(color_palette[5]);
 
-			//joint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.f, 0.f, 1.f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-			//joint->SetLimits(PxReal(10), PxReal(0));
+				//joint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
+				//joint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 
-			Add(plane);
-			Add(rectangle);
-			Add(planet);
-			Add(meteor);
-			tramp->AddToScene(this);
-			//Add(Indicator);
+				rectangle->SetTrigger(true);
+
+				Add(plane);
+				Add(rectangle);
+				Add(planet);
+				Add(meteor);
+				tramp->AddToScene(this);
+				//Add(Indicator);
+				break;
+			case 1:
+				// ==========
+				// Materials
+				// ==========
+				//PxMaterial* newMat = CreateMaterial(0.0f, 0.5f, 0.0f);
+				GetMaterial()->setDynamicFriction(0.0f);
+
+				///Initialise and set the customised event callback
+				my_callback = new MySimulationEventCallback();
+				px_scene->setSimulationEventCallback(my_callback);
+
+				plane = new Plane();
+				rectangle = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				planet = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
+				tramp = new Trampoline(50.0f, 50.0f);
+				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+
+				//rectangle->Material(newMat);
+
+				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+				rectangle->Color(color_palette[2]);
+				planet->Color(color_palette[3]);
+				meteor->Color(color_palette[4]);
+				//Indicator->Color(color_palette[5]);
+
+				//joint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
+				//joint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
+
+				rectangle->SetTrigger(true);
+
+				Add(plane);
+				Add(rectangle);
+				Add(planet);
+				Add(meteor);
+				tramp->AddToScene(this);
+				//Add(Indicator);
+				break;
+			default:
+				break;
+			}
+			//SetVisualisation();			
+
+			//// ==========
+			//// Materials
+			//// ==========
+			////PxMaterial* newMat = CreateMaterial(0.0f, 0.5f, 0.0f);
+			//GetMaterial()->setDynamicFriction(0.0f);
+
+			/////Initialise and set the customised event callback
+			//my_callback = new MySimulationEventCallback();
+			//px_scene->setSimulationEventCallback(my_callback);
+
+			//plane = new Plane();
+			//rectangle = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+			//planet = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
+			//meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
+			//tramp = new Trampoline(50.0f, 50.0f);
+			////Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+
+			////rectangle->Material(newMat);
+
+			//plane->Color(PxVec3(210.f/255.f,210.f/255.f,210.f/255.f));
+			//rectangle->Color(color_palette[2]);
+			//planet->Color(color_palette[3]);
+			//meteor->Color(color_palette[4]);
+			////Indicator->Color(color_palette[5]);
+
+			////joint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
+			////joint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
+
+			//rectangle->SetTrigger(true);
+
+			//Add(plane);
+			//Add(rectangle);
+			//Add(planet);
+			//Add(meteor);
+			//tramp->AddToScene(this);
+			////Add(Indicator);
 
 			//// const PxVec3& dimensions=PxVec3(5.f,5.f,5.f), PxReal stiffness=1.f, PxReal damping=1.f
 			//tramp = new Trampoline(PxVec3(2.0f, 2.0f, 2.0f), PxReal(20.0f), PxReal(10.0f));
@@ -264,25 +359,28 @@ namespace PhysicsEngine
 		//Custom udpate function
 		virtual void CustomUpdate() 
 		{
+			AddGravity(planet, meteor);
+			if (my_callback->trigger)
+			{
+				triggerBool = true;
+				Level++;
+			}
+		}
+
+		///Gravity for an object
+		void AddGravity(StaticSphere* planet, DynamSphere* satellite)
+		{
 			PxTransform planetPose = ((PxRigidBody*)planet->Get())->getGlobalPose();
-			PxTransform meteorPose = ((PxRigidBody*)meteor->Get())->getGlobalPose();
+			PxTransform meteorPose = ((PxRigidBody*)satellite->Get())->getGlobalPose();
 
 			PxReal px = planetPose.p.x;
 			PxReal pz = planetPose.p.z;
 			PxReal mx = meteorPose.p.x;
 			PxReal mz = meteorPose.p.z;
 
-			//cout << "Planet x:" << px << endl;
-			//cout << "Planet z:" << pz << endl;
-			//cout << "Meteor x:" << mx << endl;
-			//cout << "Meteor z:" << mz << endl;
-
 			PxReal x = PxAbs(px) - PxAbs(mx);
 			PxReal y = PxAbs(pz) - PxAbs(mz);
 			PxReal z = PxSqrt((x*x) + (y*y));
-			//cout << z << "\n" << endl;
-
-//			((PxRigidBody*)meteor->Get())->addForce(PxVec3(0.0, 0.0, 1.0) * 2);
 
 			if (z < 20)
 			{

@@ -302,10 +302,38 @@ namespace PhysicsEngine
 		return pause;
 	}
 
+	void Scene::WinState(bool value)
+	{
+		winState = value;
+	}
+
+	bool Scene::WinState()
+	{
+		return winState;
+	}
+
 	PxRigidDynamic* Scene::GetSelectedActor()
 	{
 		return selected_actor;
 	}
+
+	//PxRigidStatic* Scene::GetSpecificActor(PxReal index)
+	//{
+	//	//return selected_actor;
+	//	std::vector<PxRigidStatic*> actors(px_scene->getNbActors(PxActorTypeSelectionFlag::eRIGID_STATIC));
+	//	if (actors.size() && (px_scene->getActors(PxActorTypeSelectionFlag::eRIGID_STATIC, (PxActor**)&actors.front(), (PxU32)actors.size())))
+	//	{
+	//		if (specific_actor)
+	//		{
+	//			specific_actor = actors[index];
+	//		}
+	//		else
+	//		{
+	//			specific_actor = actors[0];
+	//		}
+	//	}
+	//	return specific_actor;
+	//}
 
 	void Scene::SelectNextActor()
 	{

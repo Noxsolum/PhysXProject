@@ -19,7 +19,8 @@ namespace VisualDebugger
 	{
 		EMPTY = 0,
 		HELP = 1,
-		PAUSE = 2
+		PAUSE = 2,
+		WINSCREEN = 3
 	};
 
 	//function declarations
@@ -103,23 +104,33 @@ namespace VisualDebugger
 		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, " Display");
 		hud.AddLine(HELP, "    F5 - help on/off");
-		hud.AddLine(HELP, "    F6 - shadows on/off");
-		hud.AddLine(HELP, "    F7 - render mode");
+		//hud.AddLine(HELP, "    F6 - shadows on/off");
+		//hud.AddLine(HELP, "    F7 - render mode");
 		hud.AddLine(HELP, "");
-		hud.AddLine(HELP, " Camera");
-		hud.AddLine(HELP, "    W,S,A,D,Q,Z - forward,backward,left,right,up,down");
-		hud.AddLine(HELP, "    mouse + click - change orientation");
-		hud.AddLine(HELP, "    F8 - reset view");
+		//hud.AddLine(HELP, " Camera");
+		//hud.AddLine(HELP, "    W,S,A,D,Q,Z - forward,backward,left,right,up,down");
+		//hud.AddLine(HELP, "    mouse + click - change orientation");
+		//hud.AddLine(HELP, "    F8 - reset view");
 		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, " Force (applied to the selected actor)");
-		hud.AddLine(HELP, "    I,K,J,L,U,M - forward,backward,left,right,up,down");
+		//hud.AddLine(HELP, "    I,K,J,L,U,M - forward,backward,left,right,up,down");
+		hud.AddLine(HELP, "      Right Arrow, Left Arrow - Aim Left or Right");
+		hud.AddLine(HELP, "      Top Arrow, Bottom Arrow - Add or Remove Velocity");
+		hud.AddLine(HELP, "      Hold Space once you have selected the");
+		hud.AddLine(HELP, "      direction and amount of velocity you want");
 		//add a pause screen
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "   Simulation paused. Press F10 to continue.");
+
+		hud.AddLine(WINSCREEN, "");
+		hud.AddLine(WINSCREEN, "");
+		hud.AddLine(WINSCREEN, "");
+		hud.AddLine(WINSCREEN, "       YOU WIN!");
 		//set font size for all screens
 		hud.FontSize(0.018f);
+		hud.FontSize(0.1f, 3);
 		//set font color for all screens
 		hud.Color(PxVec3(0.f,0.f,0.f));
 	}
@@ -157,6 +168,8 @@ namespace VisualDebugger
 		{
 			if (scene->Pause())
 				hud.ActiveScreen(PAUSE);
+			else if (scene->triggerBool)
+				hud.ActiveScreen(WINSCREEN);
 			else
 				hud.ActiveScreen(HELP);
 		}
@@ -306,6 +319,7 @@ namespace VisualDebugger
 			break;
 		case GLUT_KEY_F12:
 			//resect scene
+			disableMove = false;
 			scene->Reset();
 			break;
 		case GLUT_KEY_LEFT:
@@ -329,6 +343,14 @@ namespace VisualDebugger
 			while (disableMove == false)
 			{
 				velocity++;
+				cout << "Velocity: " << velocity << endl;
+				break;
+			}
+			break;
+		case GLUT_KEY_DOWN:
+			while (disableMove == false)
+			{
+				velocity--;
 				cout << "Velocity: " << velocity << endl;
 				break;
 			}
