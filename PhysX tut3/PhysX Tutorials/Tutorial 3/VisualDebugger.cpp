@@ -66,7 +66,7 @@ namespace VisualDebugger
 		Renderer::InitWindow(window_name, width, height);
 		Renderer::Init();
 
-		camera = new Camera(PxVec3(0.0f, 100.0f, 0.0f), PxVec3(0.0f, -90.0f, PxPi), 5.0f);
+		camera = new Camera(PxVec3(0.0f, 100.0f, -5.0f), PxVec3(0.0f, -90.0f, PxPi), 5.0f);
 
 		//initialise HUD
 		HUDInit();
@@ -93,37 +93,50 @@ namespace VisualDebugger
 
 	void HUDInit()
 	{
-		//initialise HUD
+		// ===============
+		// initialise HUD
+		// ===============
+
 		//add an empty screen
 		hud.AddLine(EMPTY, "");
 		//add a help screen
-		hud.AddLine(HELP, " Simulation");
-		hud.AddLine(HELP, "    F9 - select next actor");
-		hud.AddLine(HELP, "    F10 - pause");
-		hud.AddLine(HELP, "    F12 - reset");
+		//hud.AddLine(HELP, " Simulation");
+		//hud.AddLine(HELP, "    F9 - select next actor");
+		//hud.AddLine(HELP, "    F10 - pause");
+		//hud.AddLine(HELP, "    F12 - reset");
+
+		// Instructions
 		hud.AddLine(HELP, "");
-		hud.AddLine(HELP, " Display");
-		hud.AddLine(HELP, "    F5 - help on/off");
+		hud.AddLine(HELP, "");
+		hud.AddLine(HELP, "");
+		hud.AddLine(HELP, "");
+		hud.AddLine(HELP, "");
+		hud.AddLine(HELP, "");
+		hud.AddLine(HELP, "");
+		hud.AddLine(HELP, "");
+		hud.AddLine(HELP, "");
+		hud.AddLine(HELP, "                                                               Instructions!");
+		hud.AddLine(HELP, "                                                             F5 - help on/off");
+		hud.AddLine(HELP, "                                           Right Arrow, Left Arrow - Aim Left or Right!");
+		hud.AddLine(HELP, "                                        Top Arrow, Bottom Arrow - Add or Remove Velocity!");
+		hud.AddLine(HELP, "                Hold Space once you have selected the direction and amount of velocity you want!");
+		hud.AddLine(HELP, "                                                    Press F11 to reset the ball!");
 		//hud.AddLine(HELP, "    F6 - shadows on/off");
 		//hud.AddLine(HELP, "    F7 - render mode");
-		hud.AddLine(HELP, "");
 		//hud.AddLine(HELP, " Camera");
 		//hud.AddLine(HELP, "    W,S,A,D,Q,Z - forward,backward,left,right,up,down");
 		//hud.AddLine(HELP, "    mouse + click - change orientation");
 		//hud.AddLine(HELP, "    F8 - reset view");
-		hud.AddLine(HELP, "");
-		hud.AddLine(HELP, " Force (applied to the selected actor)");
+		//hud.AddLine(HELP, " Force (applied to the selected actor)");
 		//hud.AddLine(HELP, "    I,K,J,L,U,M - forward,backward,left,right,up,down");
-		hud.AddLine(HELP, "      Right Arrow, Left Arrow - Aim Left or Right");
-		hud.AddLine(HELP, "      Top Arrow, Bottom Arrow - Add or Remove Velocity");
-		hud.AddLine(HELP, "      Hold Space once you have selected the");
-		hud.AddLine(HELP, "      direction and amount of velocity you want");
-		//add a pause screen
+
+		// Pause Screen
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "   Simulation paused. Press F10 to continue.");
 
+		// Win Screen
 		hud.AddLine(WINSCREEN, "");
 		hud.AddLine(WINSCREEN, "");
 		hud.AddLine(WINSCREEN, "");
@@ -167,14 +180,26 @@ namespace VisualDebugger
 		if (hud_show)
 		{
 			if (scene->Pause())
+			{
 				hud.ActiveScreen(PAUSE);
+			}
 			else if (scene->triggerBool)
+			{
 				hud.ActiveScreen(WINSCREEN);
+			}
 			else
+			{
 				hud.ActiveScreen(HELP);
+			}
 		}
 		else
+		{
 			hud.ActiveScreen(EMPTY);
+			if (scene->triggerBool)
+			{
+				hud_show = true;
+			}
+		}
 
 		//render HUD
 		hud.Render();
@@ -316,6 +341,14 @@ namespace VisualDebugger
 		case GLUT_KEY_F10:
 			//toggle scene pause
 			scene->Pause(!scene->Pause());
+			break;
+		case GLUT_KEY_F11:
+			//resect scene
+			disableMove = false;
+			scene->GetSelectedActor()->setGlobalPose(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
+			scene->GetSelectedActor()->putToSleep();
+			scene->GetSelectedActor()->clearForce();
+			scene->GetSelectedActor()->clearTorque();
 			break;
 		case GLUT_KEY_F12:
 			//resect scene

@@ -190,7 +190,8 @@ namespace PhysicsEngine
 		Box* box, * box2;
 		MySimulationEventCallback* my_callback;
 		Trampoline* tramp;
-		Rectangle* rectangle;
+		Rectangle* goal;
+		Rectangle* borderTop, *borderBot, *borderLeft, *borderRight;
 		StaticSphere* planet;
 		DynamSphere* meteor;
 		DynamSphere* Indicator;
@@ -216,6 +217,7 @@ namespace PhysicsEngine
 		//Custom scene initialisation
 		virtual void CustomInit() 
 		{
+			/*
 			SetVisualisation();
 			switch (Level)
 			{
@@ -298,44 +300,57 @@ namespace PhysicsEngine
 			default:
 				break;
 			}
-			//SetVisualisation();			
+			*/
+			SetVisualisation();			
 
-			//// ==========
-			//// Materials
-			//// ==========
-			////PxMaterial* newMat = CreateMaterial(0.0f, 0.5f, 0.0f);
-			//GetMaterial()->setDynamicFriction(0.0f);
+			// ==========
+			// Materials
+			// ==========
+			//PxMaterial* newMat = CreateMaterial(0.0f, 0.5f, 0.0f);
+			GetMaterial()->setDynamicFriction(0.0f);
 
-			/////Initialise and set the customised event callback
-			//my_callback = new MySimulationEventCallback();
-			//px_scene->setSimulationEventCallback(my_callback);
+			///Initialise and set the customised event callback
+			my_callback = new MySimulationEventCallback();
+			px_scene->setSimulationEventCallback(my_callback);
 
-			//plane = new Plane();
-			//rectangle = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
-			//planet = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
-			//meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
+			plane = new Plane();
+			goal = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+			planet = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
+			meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
 			//tramp = new Trampoline(50.0f, 50.0f);
-			////Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+			borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+			borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+			borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+			borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+			//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 
-			////rectangle->Material(newMat);
+			//rectangle->Material(newMat);
 
-			//plane->Color(PxVec3(210.f/255.f,210.f/255.f,210.f/255.f));
-			//rectangle->Color(color_palette[2]);
-			//planet->Color(color_palette[3]);
-			//meteor->Color(color_palette[4]);
-			////Indicator->Color(color_palette[5]);
+			plane->Color(PxVec3(210.f/255.f,210.f/255.f,210.f/255.f));
+			goal->Color(color_palette[2]);
+			planet->Color(color_palette[3]);
+			meteor->Color(color_palette[4]);
+			borderBot->Color(color_palette[5]);
+			borderLeft->Color(color_palette[5]);
+			borderRight->Color(color_palette[5]);
+			borderTop->Color(color_palette[5]);
+			//Indicator->Color(color_palette[5]);
 
-			////joint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-			////joint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
+			//joint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
+			//joint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 
-			//rectangle->SetTrigger(true);
+			goal->SetTrigger(true);
 
-			//Add(plane);
-			//Add(rectangle);
-			//Add(planet);
-			//Add(meteor);
+			Add(plane);
+			Add(goal);
+			Add(planet);
+			Add(meteor);
+			Add(borderBot);
+			Add(borderLeft);
+			Add(borderTop);
+			Add(borderRight);
 			//tramp->AddToScene(this);
-			////Add(Indicator);
+			//Add(Indicator);
 
 			//// const PxVec3& dimensions=PxVec3(5.f,5.f,5.f), PxReal stiffness=1.f, PxReal damping=1.f
 			//tramp = new Trampoline(PxVec3(2.0f, 2.0f, 2.0f), PxReal(20.0f), PxReal(10.0f));
