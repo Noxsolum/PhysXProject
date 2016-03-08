@@ -302,38 +302,36 @@ namespace PhysicsEngine
 		return pause;
 	}
 
-	void Scene::WinState(bool value)
-	{
-		winState = value;
-	}
-
-	bool Scene::WinState()
-	{
-		return winState;
-	}
-
 	PxRigidDynamic* Scene::GetSelectedActor()
 	{
 		return selected_actor;
 	}
 
-	//PxRigidStatic* Scene::GetSpecificActor(PxReal index)
-	//{
-	//	//return selected_actor;
-	//	std::vector<PxRigidStatic*> actors(px_scene->getNbActors(PxActorTypeSelectionFlag::eRIGID_STATIC));
-	//	if (actors.size() && (px_scene->getActors(PxActorTypeSelectionFlag::eRIGID_STATIC, (PxActor**)&actors.front(), (PxU32)actors.size())))
-	//	{
-	//		if (specific_actor)
-	//		{
-	//			specific_actor = actors[index];
-	//		}
-	//		else
-	//		{
-	//			specific_actor = actors[0];
-	//		}
-	//	}
-	//	return specific_actor;
-	//}
+	void Scene::GetSpecificActor(PxReal index)
+	{
+		std::vector<PxRigidDynamic*> actors(px_scene->getNbActors(PxActorTypeSelectionFlag::eRIGID_DYNAMIC));
+		if (actors.size() && (px_scene->getActors(PxActorTypeSelectionFlag::eRIGID_DYNAMIC, (PxActor**)&actors.front(), (PxU32)actors.size())))
+		{
+			if (selected_actor)
+			{
+				for (unsigned int i = 0; i < actors.size(); i++)
+					if (selected_actor == actors[i])
+					{
+						HighlightOff(selected_actor);
+						//select the next actor
+						selected_actor = actors[(i + 1) % actors.size()];
+						break;
+					}
+			}
+			else
+			{
+				selected_actor = actors[0];
+			}
+			HighlightOn(selected_actor);
+		}
+		else
+			selected_actor = 0;
+	}
 
 	void Scene::SelectNextActor()
 	{
