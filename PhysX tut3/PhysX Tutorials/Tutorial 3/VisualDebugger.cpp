@@ -265,14 +265,6 @@ namespace VisualDebugger
 		case 'Z':
 			camera->MoveDown(delta_time);
 			break;
-		case 'N':
-			if (scene->Level == 0)
-			{
-				cout << "LEVEL UP";
-				scene->Level++;
-				break;
-			}
-			break;
 		default:
 			break;
 		}

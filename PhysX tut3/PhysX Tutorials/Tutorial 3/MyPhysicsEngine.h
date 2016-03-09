@@ -94,6 +94,7 @@ namespace PhysicsEngine
 	public:
 		//an example variable that will be checked in the main simulation loop
 		bool trigger;
+		int Level = 0;
 
 		MySimulationEventCallback() : trigger(false) {}
 
@@ -109,6 +110,7 @@ namespace PhysicsEngine
 					//check if eNOTIFY_TOUCH_FOUND trigger
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 					{
+						Level++;
  						cerr << "onTrigger::eNOTIFY_TOUCH_FOUND" << endl;
 						trigger = true;
 					}
@@ -118,7 +120,6 @@ namespace PhysicsEngine
 						cerr << "onTrigger::eNOTIFY_TOUCH_LOST" << endl;
 						trigger = false;
 					}
-					LevelAdd = false;
 				}
 			}
 		}
@@ -200,9 +201,8 @@ namespace PhysicsEngine
 		
 	public:
 		bool triggerBool = false;
-		bool NextLevel = false;
+		int NextLevel;
 
-		int Level = 0;
 		//specify your custom filter shader here
 		//PxDefaultSimulationFilterShader by default
 		MyScene() : Scene() {};
@@ -227,19 +227,19 @@ namespace PhysicsEngine
 			PxMaterial* newMat = CreateMaterial(0.0f, 0.5f, 0.0f);
 			GetMaterial()->setDynamicFriction(0.0f);
 
+			// ==========
+			// Callbacks
+			// ==========
+			my_callback = new MySimulationEventCallback();
+			px_scene->setSimulationEventCallback(my_callback);
+
 			// =======
 			// Levels
 			// =======
-			switch (Level)
+			switch (NextLevel)
 			{
 			case 0:
 				triggerBool = false;
-
-				// ==========
-				// Callbacks
-				// ==========
-				my_callback = new MySimulationEventCallback();
-				px_scene->setSimulationEventCallback(my_callback);
 
 				// =================
 				// Creating Objects
@@ -298,10 +298,6 @@ namespace PhysicsEngine
 			case 1:
 				triggerBool = false;
 
-				///Initialise and set the customised event callback
-				my_callback = new MySimulationEventCallback();
-				px_scene->setSimulationEventCallback(my_callback);
-
 				plane = new Plane();
 				goal = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
 				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
@@ -349,12 +345,6 @@ namespace PhysicsEngine
 				//tramp->AddToScene(this);
 				break;
 			case 2:
-
-				// ==========
-				// Callbacks
-				// ==========
-				my_callback = new MySimulationEventCallback();
-				px_scene->setSimulationEventCallback(my_callback);
 
 				// =================
 				// Creating Objects
@@ -491,14 +481,8 @@ namespace PhysicsEngine
 			if(my_callback->trigger)
 			{
 				triggerBool = true;
-				NextLevel = true;
 			}
-			if (NextLevel == true)
-			{
-				Level++;
-				NextLevel = false;
-			}
-			cout << Level;
+			NextLevel = my_callback->Level;
 		}
 
 		///Gravity for an object
