@@ -351,7 +351,7 @@ namespace VisualDebugger
 			scene->Pause(!scene->Pause());
 			break;
 		case GLUT_KEY_F11:
-			//resect scene
+			//reset ball
 			disableMove = false;
 			scene->GetSelectedActor()->setGlobalPose(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
 			scene->GetSelectedActor()->putToSleep();
@@ -359,7 +359,7 @@ namespace VisualDebugger
 			scene->GetSelectedActor()->clearTorque();
 			break;
 		case GLUT_KEY_F12:
-			//resect scene
+			//reset scene
 			disableMove = false;
 			scene->Reset();
 			break;

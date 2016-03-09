@@ -109,16 +109,16 @@ namespace PhysicsEngine
 					//check if eNOTIFY_TOUCH_FOUND trigger
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 					{
-						cerr << "onTrigger::eNOTIFY_TOUCH_FOUND" << endl;
+ 						cerr << "onTrigger::eNOTIFY_TOUCH_FOUND" << endl;
 						trigger = true;
 					}
 					//check if eNOTIFY_TOUCH_LOST trigger
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_LOST)
 					{
 						cerr << "onTrigger::eNOTIFY_TOUCH_LOST" << endl;
-						
 						trigger = false;
 					}
+					LevelAdd = false;
 				}
 			}
 		}
@@ -200,6 +200,8 @@ namespace PhysicsEngine
 		
 	public:
 		bool triggerBool = false;
+		bool NextLevel = false;
+
 		int Level = 0;
 		//specify your custom filter shader here
 		//PxDefaultSimulationFilterShader by default
@@ -246,7 +248,7 @@ namespace PhysicsEngine
 				goal = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
 				planet = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet2 = new StaticSphere(PxTransform(PxVec3(-500.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
-				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
+				//planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
 				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
@@ -258,6 +260,121 @@ namespace PhysicsEngine
 				// Colouring Objects
 				// ==================
 				plane->Color(PxVec3(210.f/255.f,210.f/255.f,210.f/255.f));
+				goal->Color(color_palette[2]);
+				planet->Color(color_palette[3]);
+				planet2->Color(color_palette[3]);
+				meteor->Color(color_palette[4]);
+				borderBot->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				//Indicator->Color(color_palette[6]);
+
+				// =======
+				// Joints
+				// =======
+				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
+				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
+				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(300.0f, 0.5f, 0.0f), PxQuat(PxPi / 2, PxVec3(300.0f, 0.0f, 5.0f))), planet3, PxTransform(PxVec3(0.0f, 1.0f, 10.0f)));
+				//planetJoint->DriveVelocity(PxReal(6));
+
+				goal->SetTrigger(true);
+
+				// =============
+				// Add to Scene
+				// =============
+				Add(plane);
+				Add(goal);
+				Add(planet);
+				Add(planet2);
+				//Add(planet3);
+				Add(meteor);
+				Add(borderBot);
+				Add(borderLeft);
+				Add(borderTop);
+				Add(borderRight);
+				//Add(Indicator);
+				break;
+			case 1:
+				triggerBool = false;
+
+				///Initialise and set the customised event callback
+				my_callback = new MySimulationEventCallback();
+				px_scene->setSimulationEventCallback(my_callback);
+
+				plane = new Plane();
+				goal = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
+				//planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
+				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 1.0f, -59.0f)), PxVec3(59.0f, 2.0f, 5.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 1.0f, 0.0f)), PxVec3(5.0f, 2.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 1.0f, 0.0f)), PxVec3(5.0f, 2.0f, 54.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 1.0f, 59.0f)), PxVec3(59.0f, 2.0f, 5.0f), PxReal(5.0f));
+				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+
+				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+				goal->Color(color_palette[2]);
+				planet->Color(color_palette[3]);
+				planet2->Color(color_palette[3]);
+				meteor->Color(color_palette[4]);
+				borderBot->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				//Indicator->Color(color_palette[6]);
+
+				// =======
+				// Joints
+				// =======
+				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
+				////indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
+				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(300.0f, 0.5f, 0.0f), PxQuat(PxPi / 2, PxVec3(300.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(300.0f, 1.0f, 10.0f)));
+				//planetJoint->DriveVelocity(PxReal(6));
+
+				goal->SetTrigger(true);
+
+				Add(plane);
+				Add(goal);
+				Add(planet);
+				Add(planet2);
+				//Add(planet3);
+				Add(meteor);
+				Add(borderBot);
+				Add(borderLeft);
+				Add(borderTop);
+				Add(borderRight);
+				//Add(Indicator);
+				//tramp->AddToScene(this);
+				break;
+			case 2:
+
+				// ==========
+				// Callbacks
+				// ==========
+				my_callback = new MySimulationEventCallback();
+				px_scene->setSimulationEventCallback(my_callback);
+
+				// =================
+				// Creating Objects
+				// =================
+				plane = new Plane();
+				goal = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				planet = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
+				//planet2 = new StaticSphere(PxTransform(PxVec3(-500.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
+				//planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
+				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+
+				// ==================
+				// Colouring Objects
+				// ==================
+				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 				goal->Color(color_palette[2]);
 				planet->Color(color_palette[3]);
 				meteor->Color(color_palette[4]);
@@ -272,8 +389,8 @@ namespace PhysicsEngine
 				// =======
 				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
 				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
-				planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(.0f, 1.0f, 10.0f)));
-				planetJoint->DriveVelocity(PxReal(6));
+				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(300.0f, 0.5f, 0.0f), PxQuat(PxPi / 2, PxVec3(300.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(300.0f, 1.0f, 10.0f)));
+				//planetJoint->DriveVelocity(PxReal(6));
 
 				goal->SetTrigger(true);
 
@@ -282,114 +399,14 @@ namespace PhysicsEngine
 				// =============
 				Add(plane);
 				Add(goal);
-				//Add(planet);
-				Add(planet3);
-				Add(meteor);
-				Add(borderBot);
-				Add(borderLeft);
-				Add(borderTop);
-				Add(borderRight);
-				//Add(Indicator);
-
-				break;
-			case 1:
-				triggerBool = false;
-
-				///Initialise and set the customised event callback
-				my_callback = new MySimulationEventCallback();
-				px_scene->setSimulationEventCallback(my_callback);
-
-				plane = new Plane();
-				goal = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
-				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
-				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
-				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
-				//tramp = new Trampoline(50.0f, 50.0f);
-				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 1.0f, -59.0f)), PxVec3(59.0f, 2.0f, 5.0f), PxReal(5.0f));
-				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 1.0f, 0.0f)), PxVec3(5.0f, 2.0f, 54.0f), PxReal(5.0f));
-				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 1.0f, 0.0f)), PxVec3(5.0f, 2.0f, 54.0f), PxReal(5.0f));
-				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 1.0f, 59.0f)), PxVec3(59.0f, 2.0f, 5.0f), PxReal(5.0f));
-				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
-
-				//rectangle->Material(newMat);
-
-				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
-				goal->Color(color_palette[2]);
-				planet->Color(color_palette[3]);
-				planet2->Color(color_palette[3]);
-				meteor->Color(color_palette[4]);
-				borderBot->Color(color_palette[5]);
-				borderLeft->Color(color_palette[5]);
-				borderRight->Color(color_palette[5]);
-				borderTop->Color(color_palette[5]);
-				//Indicator->Color(color_palette[6]);
-
-				//joint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-				//joint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
-
-				goal->SetTrigger(true);
-
-				Add(plane);
-				Add(goal);
 				Add(planet);
-				Add(planet2);
+				//Add(planet3);
 				Add(meteor);
 				Add(borderBot);
 				Add(borderLeft);
 				Add(borderTop);
 				Add(borderRight);
 				//Add(Indicator);
-				//tramp->AddToScene(this);
-				break;
-			case 2:
-				triggerBool = false;
-				GetMaterial()->setDynamicFriction(0.0f);
-
-				///Initialise and set the customised event callback
-				my_callback = new MySimulationEventCallback();
-				px_scene->setSimulationEventCallback(my_callback);
-
-				plane = new Plane();
-				goal = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
-				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
-				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
-				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
-				//tramp = new Trampoline(50.0f, 50.0f);
-				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 1.0f, -59.0f)), PxVec3(59.0f, 2.0f, 5.0f), PxReal(5.0f));
-				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 1.0f, 0.0f)), PxVec3(5.0f, 2.0f, 54.0f), PxReal(5.0f));
-				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 1.0f, 0.0f)), PxVec3(5.0f, 2.0f, 54.0f), PxReal(5.0f));
-				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 1.0f, 59.0f)), PxVec3(59.0f, 2.0f, 5.0f), PxReal(5.0f));
-				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
-
-				//rectangle->Material(newMat);
-
-				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
-				goal->Color(color_palette[2]);
-				planet->Color(color_palette[3]);
-				planet2->Color(color_palette[3]);
-				meteor->Color(color_palette[4]);
-				borderBot->Color(color_palette[5]);
-				borderLeft->Color(color_palette[5]);
-				borderRight->Color(color_palette[5]);
-				borderTop->Color(color_palette[5]);
-				//Indicator->Color(color_palette[6]);
-
-				//joint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-				//joint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
-
-				goal->SetTrigger(true);
-
-				Add(plane);
-				Add(goal);
-				Add(planet);
-				Add(planet2);
-				Add(meteor);
-				Add(borderBot);
-				Add(borderLeft);
-				Add(borderTop);
-				Add(borderRight);
-				//Add(Indicator);
-				//tramp->AddToScene(this);
 				break;
 			default:
 				break;
@@ -468,14 +485,18 @@ namespace PhysicsEngine
 		//Custom udpate function
 		virtual void CustomUpdate() 
 		{
-			//AddGravity(planet, meteor);
-			//AddGravity(planet2, meteor);
-			AddGravityDynamic(planet3, meteor);
-			while(my_callback->trigger)
+			AddGravity(planet, meteor);
+			AddGravity(planet2, meteor);
+			//AddGravityDynamic(planet3, meteor);
+			if(my_callback->trigger)
 			{
 				triggerBool = true;
+				NextLevel = true;
+			}
+			if (NextLevel == true)
+			{
 				Level++;
-
+				NextLevel = false;
 			}
 			cout << Level;
 		}
