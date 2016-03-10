@@ -100,6 +100,11 @@ namespace PhysicsEngine
 		}
 	};
 
+	class Goal : public StaticActor
+	{
+		
+	};
+
 	///The ConvexMesh class
 	class ConvexMesh : public DynamicActor
 	{

@@ -353,7 +353,9 @@ namespace VisualDebugger
 		case GLUT_KEY_F12:
 			//reset scene
 			disableMove = false;
+			//int NextLevelSave = scene->NextLevel;
 			scene->Reset();
+			//scene->
 			break;
 		case GLUT_KEY_LEFT:
 			while (leftToRight < 2 && disableMove == false)
