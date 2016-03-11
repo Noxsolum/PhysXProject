@@ -104,11 +104,11 @@ namespace PhysicsEngine
 	{
 		Rectangle* back, *left, *right;
 	public:
-		Goal(const PxVec3 pose = PxVec3(0.0f, 0.5f, 50.0f), const PxVec3& dimensionsBack = PxVec3(3.0f, 0.5f, 0.1f), const PxVec3& dimensionsSides = PxVec3(0.1, 0.5f, 1.0f))
+		Goal(const PxVec3 pose = PxVec3(0.0f, 0.5f, 50.0f), const PxVec3& dimensionsBack = PxVec3(4.0f, 0.5f, 0.25f), const PxVec3& dimensionsSides = PxVec3(0.25, 0.5f, 2.0f))
 		{
 			back = new Rectangle(PxTransform(PxVec3(pose.x, pose.y, pose.z)), PxVec3(dimensionsBack), PxReal(1.0f));
-			left = new Rectangle(PxTransform(PxVec3(pose.x + 3.0f, pose.y, pose.z - 1.0f)), PxVec3(dimensionsSides), PxReal(1.0f));
-			right = new Rectangle(PxTransform(PxVec3(pose.x - 3.0f, pose.y, pose.z - 1.0f)), PxVec3(dimensionsSides), PxReal(1.0f));
+			left = new Rectangle(PxTransform(PxVec3(pose.x + 4.0f, pose.y, pose.z - 1.75)), PxVec3(dimensionsSides), PxReal(1.0f));
+			right = new Rectangle(PxTransform(PxVec3(pose.x - 4.0f, pose.y, pose.z - 1.75)), PxVec3(dimensionsSides), PxReal(1.0f));
 		}
 
 		void AddToScene(Scene* scene)
@@ -120,6 +120,12 @@ namespace PhysicsEngine
 		void SetTrigger()
 		{
 			back->SetTrigger(true);
+		}
+		void Color(PxVec3 color)
+		{
+			back->Color(color);
+			left->Color(color);
+			right->Color(color);
 		}
 	};
 

@@ -307,27 +307,32 @@ namespace PhysicsEngine
 		return selected_actor;
 	}
 
-	void Scene::GetSpecificActor(PxReal index)
+	PxRigidDynamic* Scene::GetSpecificActor()
+	{
+		return specific_actor;
+	}
+
+	void Scene::SelectSpecificActor(PxReal index)
 	{
 		std::vector<PxRigidDynamic*> actors(px_scene->getNbActors(PxActorTypeSelectionFlag::eRIGID_DYNAMIC));
 		if (actors.size() && (px_scene->getActors(PxActorTypeSelectionFlag::eRIGID_DYNAMIC, (PxActor**)&actors.front(), (PxU32)actors.size())))
 		{
-			if (selected_actor)
+			if (specific_actor)
 			{
 				for (unsigned int i = 0; i < actors.size(); i++)
-					if (selected_actor == actors[i])
+					if (specific_actor == actors[i])
 					{
-						HighlightOff(selected_actor);
+						HighlightOff(specific_actor);
 						//select the next actor
-						selected_actor = actors[(i + 1) % actors.size()];
+						specific_actor = actors[(i + 1) % actors.size()];
 						break;
 					}
 			}
 			else
 			{
-				selected_actor = actors[0];
+				specific_actor = actors[0];
 			}
-			HighlightOn(selected_actor);
+			HighlightOn(specific_actor);
 		}
 		else
 			selected_actor = 0;

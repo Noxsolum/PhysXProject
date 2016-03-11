@@ -303,6 +303,10 @@ namespace VisualDebugger
 			disableMove = true;
 			scene->GetSelectedActor()->addForce(PxVec3(leftToRight, 0, 1) * velocity);
 			break;
+		case 'C':
+			scene->SelectSpecificActor(1);
+			scene->GetSpecificActor()->addForce(PxVec3(1.0f, 0.0f, 0.0f) * 10);
+			break;
 		default:
 			break;
 		}
