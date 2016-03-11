@@ -50,7 +50,7 @@ namespace VisualDebugger
 	HUD hud;
 	PxReal leftToRight = 0;
 	bool disableMove = false;
-	PxReal velocity = 1;
+	PxReal velocity = 0;
 
 	//Init the debugger
 	void Init(const char *window_name, int width, int height)
@@ -140,10 +140,11 @@ namespace VisualDebugger
 		hud.AddLine(WINSCREEN, "");
 		hud.AddLine(WINSCREEN, "");
 		hud.AddLine(WINSCREEN, "");
-		hud.AddLine(WINSCREEN, "       YOU WIN!");
+		hud.AddLine(WINSCREEN, "                YOU WIN!");
+		hud.AddLine(WINSCREEN, "     Press F12 to continue!");
 		//set font size for all screens
 		hud.FontSize(0.018f);
-		hud.FontSize(0.1f, 3);
+		hud.FontSize(0.06f, 3);
 		//set font color for all screens
 		hud.Color(PxVec3(0.f,0.f,0.f));
 	}
@@ -355,6 +356,8 @@ namespace VisualDebugger
 			disableMove = false;
 			//int NextLevelSave = scene->NextLevel;
 			scene->Reset();
+			leftToRight = 0;
+			velocity = 0;
 			//scene->
 			break;
 		case GLUT_KEY_LEFT:
@@ -383,7 +386,7 @@ namespace VisualDebugger
 			}
 			break;
 		case GLUT_KEY_DOWN:
-			while (disableMove == false)
+			while (disableMove == false && velocity > 0)
 			{
 				velocity--;
 				cout << "Velocity: " << velocity << endl;

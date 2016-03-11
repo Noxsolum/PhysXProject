@@ -100,9 +100,27 @@ namespace PhysicsEngine
 		}
 	};
 
-	class Goal : public StaticActor
+	class Goal
 	{
-		
+		Rectangle* back, *left, *right;
+	public:
+		Goal(const PxVec3 pose = PxVec3(0.0f, 0.5f, 50.0f), const PxVec3& dimensionsBack = PxVec3(3.0f, 0.5f, 0.1f), const PxVec3& dimensionsSides = PxVec3(0.1, 0.5f, 1.0f))
+		{
+			back = new Rectangle(PxTransform(PxVec3(pose.x, pose.y, pose.z)), PxVec3(dimensionsBack), PxReal(1.0f));
+			left = new Rectangle(PxTransform(PxVec3(pose.x + 3.0f, pose.y, pose.z - 1.0f)), PxVec3(dimensionsSides), PxReal(1.0f));
+			right = new Rectangle(PxTransform(PxVec3(pose.x - 3.0f, pose.y, pose.z - 1.0f)), PxVec3(dimensionsSides), PxReal(1.0f));
+		}
+
+		void AddToScene(Scene* scene)
+		{
+			scene->Add(back);
+			scene->Add(left);
+			scene->Add(right);
+		}
+		void SetTrigger()
+		{
+			back->SetTrigger(true);
+		}
 	};
 
 	///The ConvexMesh class

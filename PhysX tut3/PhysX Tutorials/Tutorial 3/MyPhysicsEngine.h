@@ -8,6 +8,7 @@
 namespace PhysicsEngine
 {
 	using namespace std;
+	static int LevelCount = 0;
 
 	//a list of colours: Circus Palette
 	static const PxVec3 color_palette[] = {PxVec3(46.f/255.f,9.f/255.f,39.f/255.f),PxVec3(217.f/255.f,0.f/255.f,0.f/255.f),
@@ -93,7 +94,6 @@ namespace PhysicsEngine
 	public:
 		//an example variable that will be checked in the main simulation loop
 		bool trigger;
-		int Level = 0;
 		MySimulationEventCallback() : trigger(false) {}
 
 		///Method called when the contact with the trigger object is detected.
@@ -108,7 +108,7 @@ namespace PhysicsEngine
 					//check if eNOTIFY_TOUCH_FOUND trigger
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 					{
-						Level++;
+						LevelCount++;
  						cerr << "onTrigger::eNOTIFY_TOUCH_FOUND" << endl;
 						trigger = true;
 					}
@@ -195,6 +195,7 @@ namespace PhysicsEngine
 		DynamSphere* meteor, *planet3;
 		DynamSphere* Indicator;
 		RevoluteJoint* indieJoint, * planetJoint;
+		Goal* newGoal;
 
 		
 	public:
@@ -230,12 +231,11 @@ namespace PhysicsEngine
 			// ==========
 			my_callback = new MySimulationEventCallback();
 			px_scene->setSimulationEventCallback(my_callback);
-			int NextLevel = my_callback->Level;
 
 			// =======
 			// Levels
 			// =======
-			switch (NextLevel)
+			switch (LevelCount)
 			{
 			case 0:
 				triggerBool = false;
@@ -245,14 +245,15 @@ namespace PhysicsEngine
 				// =================
 				plane = new Plane();
 				goal = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
-				planet = new StaticSphere(PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), PxReal(3.0f), PxReal(1.0f));
-				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, -20.0f)), PxReal(3.0f), PxReal(1.0f));
-				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(3.0f), PxReal(1.0f));
-				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.5f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(-550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				newGoal = new Goal();
 				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 
 				// ==================
@@ -275,16 +276,18 @@ namespace PhysicsEngine
 				// =======
 				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
 				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
-				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 10.0f)));
+				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.0f, 10.0f)));
 				//planetJoint->DriveVelocity(PxReal(6.0f));
 
-				goal->SetTrigger(true);
+				//goal->SetTrigger(true);
+				newGoal->SetTrigger();
+				
 
 				// =============
 				// Add to Scene
 				// =============
 				Add(plane);
-				Add(goal);
+				//Add(goal);
 				Add(meteor);
 				Add(planet);
 				//Add(planet2);
@@ -294,16 +297,17 @@ namespace PhysicsEngine
 				Add(borderTop);
 				Add(borderRight);
 				//Add(Indicator);
+				newGoal->AddToScene(this);
 				break;
 			case 1:
 				triggerBool = false;
 
 				plane = new Plane();
 				goal = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
-				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 20.0f)), PxReal(3.0f), PxReal(1.0f));
-				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, -20.0f)), PxReal(3.0f), PxReal(1.0f));
-				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(3.0f), PxReal(1.0f));
-				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.5f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 1.0f, -59.0f)), PxVec3(59.0f, 2.0f, 5.0f), PxReal(5.0f));
 				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 1.0f, 0.0f)), PxVec3(5.0f, 2.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 1.0f, 0.0f)), PxVec3(5.0f, 2.0f, 54.0f), PxReal(5.0f));
@@ -345,16 +349,17 @@ namespace PhysicsEngine
 				//tramp->AddToScene(this);
 				break;
 			case 2:
+				triggerBool = false;
 
 				// =================
 				// Creating Objects
 				// =================
 				plane = new Plane();
 				goal = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
-				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 20.0f)), PxReal(4.0f), PxReal(1.0f));
-				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, -20.0f)), PxReal(4.0f), PxReal(1.0f));
-				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(4.0f), PxReal(1.0f));
-				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(500.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 10.0f)), PxReal(2.0f), PxReal(1.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
@@ -483,8 +488,6 @@ namespace PhysicsEngine
 			{
 				triggerBool = true;
 			}
-			NextLevel = my_callback->Level;
-			cout << NextLevel;
 		}
 
 		///Gravity for an object
