@@ -1,0 +1,28 @@
+﻿Build started 13/03/2016 18:15:24.
+     1>Project "C:\Users\Computing\Documents\GitHub\PhysXProject\PhysX tut3\PhysX Tutorials\Tutorial 3\Tutorial 3.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files (x86)\NVIDIA Corporation\NVIDIA PhysX SDK\3.3.4\include" /I.\Graphics\include\win32 /Zi /nologo /W3 /WX- /sdl /O2 /Oi /GL /D NDEBUG /D _MBCS /D _MBCS /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Release\\" /Fd"x64\Release\vc140.pdb" /Gd /TP /errorReport:prompt "Tutorial 3.cpp" VisualDebugger.cpp
+         Tutorial 3.cpp
+     1>c:\users\computing\documents\github\physxproject\physx tut3\physx tutorials\tutorial 3\BasicActors.h(110): warning C4244: 'argument': conversion from 'double' to 'physx::PxReal', possible loss of data
+     1>c:\users\computing\documents\github\physxproject\physx tut3\physx tutorials\tutorial 3\BasicActors.h(111): warning C4244: 'argument': conversion from 'double' to 'physx::PxReal', possible loss of data
+         VisualDebugger.cpp
+     1>c:\users\computing\documents\github\physxproject\physx tut3\physx tutorials\tutorial 3\BasicActors.h(110): warning C4244: 'argument': conversion from 'double' to 'physx::PxReal', possible loss of data
+     1>c:\users\computing\documents\github\physxproject\physx tut3\physx tutorials\tutorial 3\BasicActors.h(111): warning C4244: 'argument': conversion from 'double' to 'physx::PxReal', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Computing\Documents\GitHub\PhysXProject\PhysX tut3\PhysX Tutorials\x64\Release\Tutorial 3.exe" /NOLOGO /LIBPATH:"C:\Program Files (x86)\NVIDIA Corporation\NVIDIA PhysX SDK\3.3.4\lib\vc14win64" /LIBPATH:.\Graphics\lib\win64\glut PhysX3Common_x64.lib PhysX3Extensions.lib PhysXVisualDebuggerSDK.lib PhysX3_x64.lib PhysX3Cooking_x64.lib glut32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Computing\Documents\GitHub\PhysXProject\PhysX tut3\PhysX Tutorials\x64\Release\Tutorial 3.pdb" /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Computing\Documents\GitHub\PhysXProject\PhysX tut3\PhysX Tutorials\x64\Release\Tutorial 3.lib" /MACHINE:X64 x64\Release\Camera.obj
+         x64\Release\GLFontRenderer.obj
+         x64\Release\Renderer.obj
+         x64\Release\PhysicsEngine.obj
+         x64\Release\VisualDebugger.obj
+         "x64\Release\Tutorial 3.obj"
+         Generating code
+         0 of 1203 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+           0 functions were new in current compilation
+           0 functions had inline decision re-evaluated but remain unchanged
+         Finished generating code
+         Tutorial 3.vcxproj -> C:\Users\Computing\Documents\GitHub\PhysXProject\PhysX tut3\PhysX Tutorials\x64\Release\Tutorial 3.exe
+     1>Done Building Project "C:\Users\Computing\Documents\GitHub\PhysXProject\PhysX tut3\PhysX Tutorials\Tutorial 3\Tutorial 3.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.07

@@ -117,15 +117,56 @@ namespace PhysicsEngine
 			scene->Add(left);
 			scene->Add(right);
 		}
+
 		void SetTrigger()
 		{
 			back->SetTrigger(true);
 		}
+
 		void Color(PxVec3 color)
 		{
 			back->Color(color);
 			left->Color(color);
 			right->Color(color);
+		}
+	};
+
+	class Obstacle : public StaticActor
+	{
+		StaticBox* topLeft, *topRight, *botLeft, *botRight;
+	public:
+		Obstacle(const PxVec3 pose = PxVec3(300.0f, 0.5f, 300.0f)) : StaticActor(pose)
+		{
+			topLeft = new StaticBox(PxTransform(PxVec3(pose.x + 4.0f, pose.y, pose.z + 4.0f)), PxVec3(1.5f, 1.5f, 1.5f));
+			topRight = new StaticBox(PxTransform(PxVec3(pose.x - 4.0f, pose.y, pose.z + 4.0f)), PxVec3(1.5f, 1.5f, 1.5f));
+			botLeft = new StaticBox(PxTransform(PxVec3(pose.x + 4.0f, pose.y, pose.z - 4.0f)), PxVec3(1.5f, 1.5f, 1.5f));
+			botRight = new StaticBox(PxTransform(PxVec3(pose.x - 4.0f, pose.y, pose.z - 4.0f)), PxVec3(1.5f, 1.5f, 1.5f));
+			GetShape(0) = 
+			
+		}
+
+		void AddToScene(Scene* scene)
+		{
+			scene->Add(topLeft);
+			scene->Add(topRight);
+			scene->Add(botLeft);
+			scene->Add(botRight);
+		}
+
+		void Color(PxVec3 color)
+		{
+			topLeft->Color(color);
+			topRight->Color(color);
+			botLeft->Color(color);
+			botRight->Color(color);
+		}
+
+		void Material(PxMaterial* material)
+		{
+			topLeft->Material(material);
+			topRight->Material(material);
+			botLeft->Material(material);
+			botRight->Material(material);
 		}
 	};
 

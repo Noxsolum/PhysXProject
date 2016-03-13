@@ -130,6 +130,12 @@ namespace PhysicsEngine
 			top->Color(colortwo);
 		}
 
+		void Material(PxMaterial* material)
+		{
+			base->Material(material);
+			top->Material(material);
+		}
+
 		~SpringWalls()
 		{
 			for (unsigned int i = 0; i < springs.size(); i++)
@@ -241,6 +247,7 @@ namespace PhysicsEngine
 		RevoluteJoint* indieJoint, * planetJoint;
 		Goal* newGoal;
 		SpringWalls* SpringLeft, *SpringRight;
+		Obstacle* obstacle;
 
 		
 	public:
@@ -264,10 +271,10 @@ namespace PhysicsEngine
 		{
 			SetVisualisation();
 
-			// ==========
-			// Materials
-			// ==========
-			PxMaterial* newMat = CreateMaterial(0.0f, 0.5f, 0.0f);
+			// ===================
+			// Creating Materials
+			// ===================
+			PxMaterial* bouncyMat = CreateMaterial(0.0f, 0.0f, 1.0f);
 			GetMaterial()->setDynamicFriction(0.0f);
 
 			// ==========
@@ -293,6 +300,7 @@ namespace PhysicsEngine
 				planet2 = new StaticSphere(PxTransform(PxVec3(-550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
 				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				obstacle = new Obstacle(PxVec3(0.0f, 0.5f, 0.0f));
 				SpringRight = new SpringWalls();
 				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
@@ -315,6 +323,7 @@ namespace PhysicsEngine
 				planet2->Color(color_palette[3]);
 				planet3->Color(color_palette[3]);
 				meteor->Color(color_palette[4]);
+				obstacle->Color(color_palette[3]);
 				borderBot->Color(color_palette[5]);
 				borderLeft->Color(color_palette[5]);
 				borderRight->Color(color_palette[5]);
@@ -336,12 +345,18 @@ namespace PhysicsEngine
 				// =========
 				newGoal->SetTrigger();
 
+				// ==========
+				// Materials
+				// ==========
+				SpringLeft->Material(bouncyMat);
+				SpringRight->Material(bouncyMat);
+
 				// =============
 				// Add to Scene
 				// =============
 				Add(plane);
 				newGoal->AddToScene(this);
-
+				obstacle->AddToScene(this);
 				Add(meteor);
 				Add(planet);
 				//Add(planet2);
@@ -357,6 +372,9 @@ namespace PhysicsEngine
 			case 1:
 				triggerBool = false;
 
+				// =================
+				// Creating Objects
+				// =================
 				plane = new Plane();
 				newGoal = new Goal();
 				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
@@ -397,6 +415,12 @@ namespace PhysicsEngine
 				// Triggers
 				// =========
 				newGoal->SetTrigger();
+
+				// ==========
+				// Materials
+				// ==========
+				SpringLeft->Material(bouncyMat);
+				SpringRight->Material(bouncyMat);
 
 				// =============
 				// Add to Scene
@@ -465,6 +489,12 @@ namespace PhysicsEngine
 				// =========
 				newGoal->SetTrigger();
 
+				// ==========
+				// Materials
+				// ==========
+				SpringLeft->Material(bouncyMat);
+				SpringRight->Material(bouncyMat);
+
 				// =============
 				// Add to Scene
 				// =============
@@ -531,6 +561,12 @@ namespace PhysicsEngine
 				// Triggers
 				// =========
 				newGoal->SetTrigger();
+
+				// ==========
+				// Materials
+				// ==========
+				SpringLeft->Material(bouncyMat);
+				SpringRight->Material(bouncyMat);
 
 				// =============
 				// Add to Scene
