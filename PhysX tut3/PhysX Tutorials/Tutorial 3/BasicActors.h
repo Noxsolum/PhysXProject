@@ -207,8 +207,8 @@ namespace PhysicsEngine
 			joint = (PxJoint*)PxDistanceJointCreate(*GetPhysics(), px_actor0, localFrame0, (PxRigidActor*)actor1->Get(), localFrame1);
 			joint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 			((PxDistanceJoint*)joint)->setDistanceJointFlag(PxDistanceJointFlag::eSPRING_ENABLED, true);
-			Damping(1.f);
-			Stiffness(1.f);
+			Damping(1.0f);
+			Stiffness(1.0f);
 		}
 
 		void Stiffness(PxReal value)

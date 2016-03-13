@@ -38,6 +38,7 @@ namespace PhysicsEngine
 		}
 	};
 
+	//=============================================================================================
 	struct FilterGroup
 	{
 		enum Enum
@@ -48,8 +49,9 @@ namespace PhysicsEngine
 			//add more if you need
 		};
 	};
+	//=============================================================================================
 
-	///An example class showing the use of springs (distance joints).
+	//An example class showing the use of springs (distance joints).
 	class Trampoline
 	{
 		vector<DistanceJoint*> springs;
@@ -88,7 +90,55 @@ namespace PhysicsEngine
 		}
 	};
 
-	///A customised collision class, implemneting various callbacks
+	// My Spring Walls
+	class SpringWalls
+	{
+		StaticBox* base;
+		Box* top;
+		vector<DistanceJoint*> springs;
+		
+	public:
+		SpringWalls(const PxReal PosOrMin = PxReal(4.0f), const PxVec3 pose = PxVec3(-59.0f, 0.5f, 0.0f), const PxVec3& dimensionsBack = PxVec3(1.0f, 1.0f, 54.0f), PxReal stiffness = 7.0f, PxReal damping = 20.0f)
+		{
+			PxReal thickness = .1f;
+			base = new StaticBox(PxTransform(PxVec3(pose)), PxVec3(dimensionsBack.x, dimensionsBack.y, dimensionsBack.z));
+			top = new Box(PxTransform(PxVec3(pose.x + PosOrMin, pose.y, pose.z)), PxVec3(dimensionsBack.x, dimensionsBack.y, dimensionsBack.z), PxReal(1.0f));
+			springs.resize(6);
+			springs[0] = new DistanceJoint(base, PxTransform(PxVec3(pose.x, pose.y, pose.z + 22.0f)), top, PxTransform(PxVec3(-pose.x + PosOrMin, pose.y, pose.z + 22.0f)));
+			springs[1] = new DistanceJoint(base, PxTransform(PxVec3(pose.x, pose.y, pose.z - 22.0f)), top, PxTransform(PxVec3(-pose.x + PosOrMin, pose.y, pose.z - 22.0f)));
+			springs[2] = new DistanceJoint(base, PxTransform(PxVec3(pose.x, pose.y, pose.z + 14.0f)), top, PxTransform(PxVec3(-pose.x + PosOrMin, pose.y, pose.z + 14.0f)));
+			springs[3] = new DistanceJoint(base, PxTransform(PxVec3(pose.x, pose.y, pose.z - 14.0f)), top, PxTransform(PxVec3(-pose.x + PosOrMin, pose.y, pose.z - 14.0f)));
+			springs[4] = new DistanceJoint(base, PxTransform(PxVec3(pose.x, pose.y, pose.z + 5.0f)), top, PxTransform(PxVec3(-pose.x + PosOrMin, pose.y, pose.z + 5.0f)));
+			springs[5] = new DistanceJoint(base, PxTransform(PxVec3(pose.x, pose.y, pose.z - 5.0f)), top, PxTransform(PxVec3(-pose.x + PosOrMin, pose.y, pose.z - 5.0f)));
+			for (unsigned int i = 0; i < springs.size(); i++)
+			{
+				springs[i]->Stiffness(stiffness);
+				springs[i]->Damping(damping);
+				springs[i]->Get()->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
+			}
+		}
+
+		void AddToScene(Scene* scene)
+		{
+			scene->Add(base);
+			scene->Add(top);
+		}
+
+		void Color(PxVec3 color, PxVec3 colortwo)
+		{
+			base->Color(color);
+			top->Color(colortwo);
+		}
+
+		~SpringWalls()
+		{
+			for (unsigned int i = 0; i < springs.size(); i++)
+				delete springs[i];
+		}
+
+	};
+
+	// Collison Class
 	class MySimulationEventCallback : public PxSimulationEventCallback
 	{
 	public:
@@ -109,13 +159,11 @@ namespace PhysicsEngine
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 					{
 						LevelCount++;
- 						cerr << "onTrigger::eNOTIFY_TOUCH_FOUND" << endl;
 						trigger = true;
 					}
 					//check if eNOTIFY_TOUCH_LOST trigger
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_LOST)
 					{
-						cerr << "onTrigger::eNOTIFY_TOUCH_LOST" << endl;
 						trigger = false;
 					}
 				}
@@ -150,9 +198,7 @@ namespace PhysicsEngine
 	};
 
 	//A simple filter shader based on PxDefaultSimulationFilterShader - without group filtering
-	static PxFilterFlags CustomFilterShader( PxFilterObjectAttributes attributes0,	PxFilterData filterData0,
-		PxFilterObjectAttributes attributes1,	PxFilterData filterData1,
-		PxPairFlags& pairFlags,	const void* constantBlock,	PxU32 constantBlockSize)
+	static PxFilterFlags CustomFilterShader( PxFilterObjectAttributes attributes0,	PxFilterData filterData0, PxFilterObjectAttributes attributes1,	PxFilterData filterData1, PxPairFlags& pairFlags,	const void* constantBlock,	PxU32 constantBlockSize)
 	{
 		// let triggers through
 		if(PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
@@ -188,13 +234,13 @@ namespace PhysicsEngine
 		Plane* plane;
 		Box* box, * box2;
 		MySimulationEventCallback* my_callback;
-		Trampoline* tramp;
 		Rectangle* borderTop, *borderBot, *borderLeft, *borderRight;
 		StaticSphere* planet, * planet2;
 		DynamSphere* meteor, *planet3;
 		DynamSphere* Indicator;
 		RevoluteJoint* indieJoint, * planetJoint;
 		Goal* newGoal;
+		SpringWalls* SpringLeft, *SpringRight;
 
 		
 	public:
@@ -247,11 +293,18 @@ namespace PhysicsEngine
 				planet2 = new StaticSphere(PxTransform(PxVec3(-550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
 				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				SpringRight = new SpringWalls();
+				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
-				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
-				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
-				Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+
+				// =============
+				// Setting Name
+				// =============
+				//Indicator->Name("Indicator");
 
 				// ==================
 				// Colouring Objects
@@ -266,13 +319,15 @@ namespace PhysicsEngine
 				borderLeft->Color(color_palette[5]);
 				borderRight->Color(color_palette[5]);
 				borderTop->Color(color_palette[5]);
-				Indicator->Color(color_palette[6]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				SpringRight->Color(color_palette[5], color_palette[1]);
+				//Indicator->Color(color_palette[6]);
 
 				// =======
 				// Joints
 				// =======
-				indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-				indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
+				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
+				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.0f, 10.0f)));
 				//planetJoint->DriveVelocity(PxReal(6.0f));
 
@@ -286,16 +341,18 @@ namespace PhysicsEngine
 				// =============
 				Add(plane);
 				newGoal->AddToScene(this);
+
 				Add(meteor);
 				Add(planet);
 				//Add(planet2);
 				//Add(planet3);
 				Add(borderBot);
-				Add(borderLeft);
 				Add(borderTop);
+				Add(borderLeft);
 				Add(borderRight);
-				Add(Indicator);
-
+				//Add(Indicator);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
 				break;
 			case 1:
 				triggerBool = false;
@@ -306,10 +363,12 @@ namespace PhysicsEngine
 				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
 				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
-				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 1.0f, -59.0f)), PxVec3(59.0f, 2.0f, 5.0f), PxReal(5.0f));
-				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 1.0f, 0.0f)), PxVec3(5.0f, 2.0f, 54.0f), PxReal(5.0f));
-				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 1.0f, 0.0f)), PxVec3(5.0f, 2.0f, 54.0f), PxReal(5.0f));
-				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 1.0f, 59.0f)), PxVec3(59.0f, 2.0f, 5.0f), PxReal(5.0f));
+				SpringRight = new SpringWalls();
+				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
+				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 
 				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
@@ -322,6 +381,8 @@ namespace PhysicsEngine
 				borderLeft->Color(color_palette[5]);
 				borderRight->Color(color_palette[5]);
 				borderTop->Color(color_palette[5]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				SpringRight->Color(color_palette[5], color_palette[1]);
 				//Indicator->Color(color_palette[6]);
 
 				// =======
@@ -350,6 +411,8 @@ namespace PhysicsEngine
 				Add(borderLeft);
 				Add(borderTop);
 				Add(borderRight);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
 				//Add(Indicator);
 				break;
 			case 2:
@@ -364,9 +427,11 @@ namespace PhysicsEngine
 				planet2 = new StaticSphere(PxTransform(PxVec3(550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 10.0f)), PxReal(2.0f), PxReal(1.0f));
 				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				SpringRight = new SpringWalls();
+				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
-				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
-				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 
@@ -383,6 +448,8 @@ namespace PhysicsEngine
 				borderLeft->Color(color_palette[5]);
 				borderRight->Color(color_palette[5]);
 				borderTop->Color(color_palette[5]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				SpringRight->Color(color_palette[5], color_palette[1]);
 				//Indicator->Color(color_palette[6]);
 
 				// =======
@@ -411,6 +478,8 @@ namespace PhysicsEngine
 				Add(borderLeft);
 				Add(borderTop);
 				Add(borderRight);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
 				//Add(Indicator);
 				break;
 			case 3:
@@ -425,9 +494,11 @@ namespace PhysicsEngine
 				planet2 = new StaticSphere(PxTransform(PxVec3(550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 10.0f)), PxReal(2.0f), PxReal(1.0f));
 				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				SpringRight = new SpringWalls();
+				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
-				borderRight = new Rectangle(PxTransform(PxVec3(-59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
-				borderLeft = new Rectangle(PxTransform(PxVec3(59.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 
@@ -444,6 +515,8 @@ namespace PhysicsEngine
 				borderLeft->Color(color_palette[5]);
 				borderRight->Color(color_palette[5]);
 				borderTop->Color(color_palette[5]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				SpringRight->Color(color_palette[5], color_palette[1]);
 				//Indicator->Color(color_palette[6]);
 
 				// =======
@@ -472,11 +545,14 @@ namespace PhysicsEngine
 				Add(borderLeft);
 				Add(borderTop);
 				Add(borderRight);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
 				//Add(Indicator);
 				break;
 			default:
 				break;
 			}
+
 			/*
 			//SetVisualisation();			
 

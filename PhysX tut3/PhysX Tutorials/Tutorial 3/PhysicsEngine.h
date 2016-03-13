@@ -156,7 +156,7 @@ namespace PhysicsEngine
 
 		PxRigidDynamic* GetSpecificActor();
 
-		void SelectSpecificActor(PxReal index);
+		void SelectSpecificActor();
 
 		///Switch to the next dynamic actor
 		void SelectNextActor();

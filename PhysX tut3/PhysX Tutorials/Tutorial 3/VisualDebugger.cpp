@@ -282,7 +282,6 @@ namespace VisualDebugger
 			// Force controls on the selected actor
 		case 'I': //forward
 			scene->GetSelectedActor()->addForce(PxVec3(0, 0, 1)*gForceStrength);
-			cout << "up";
 			break;
 		case 'K': //backward
 			scene->GetSelectedActor()->addForce(PxVec3(0, 0, -1)*gForceStrength);
@@ -303,10 +302,11 @@ namespace VisualDebugger
 			disableMove = true;
 			scene->GetSelectedActor()->addForce(PxVec3(leftToRight, 0, 1) * velocity);
 			break;
-		case 'C':
-			scene->SelectSpecificActor(1);
-			scene->GetSpecificActor()->addForce(PxVec3(1.0f, 0.0f, 0.0f) * 10);
-			break;
+		//case 'C':
+		//	cout << scene->GetSpecificActor()->getName();
+		//	//scene->GetSpecificActor()->addForce(PxVec3(0, 1, 0) * 10);
+		//	cout << "C";
+		//	break;
 		default:
 			break;
 		}
