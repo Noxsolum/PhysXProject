@@ -135,38 +135,16 @@ namespace PhysicsEngine
 	{
 		StaticBox* topLeft, *topRight, *botLeft, *botRight;
 	public:
-		Obstacle(const PxVec3 pose = PxVec3(300.0f, 0.5f, 300.0f)) : StaticActor(pose)
+		Obstacle(const PxTransform& pose = PxTransform(PxIdentity), PxVec3 dimensions = PxVec3(2.0f, 2.0f, 2.0f), PxReal density = 1.0f) : StaticActor(pose)
 		{
-			topLeft = new StaticBox(PxTransform(PxVec3(pose.x + 4.0f, pose.y, pose.z + 4.0f)), PxVec3(1.5f, 1.5f, 1.5f));
-			topRight = new StaticBox(PxTransform(PxVec3(pose.x - 4.0f, pose.y, pose.z + 4.0f)), PxVec3(1.5f, 1.5f, 1.5f));
-			botLeft = new StaticBox(PxTransform(PxVec3(pose.x + 4.0f, pose.y, pose.z - 4.0f)), PxVec3(1.5f, 1.5f, 1.5f));
-			botRight = new StaticBox(PxTransform(PxVec3(pose.x - 4.0f, pose.y, pose.z - 4.0f)), PxVec3(1.5f, 1.5f, 1.5f));
-			GetShape(0) = 
-			
-		}
-
-		void AddToScene(Scene* scene)
-		{
-			scene->Add(topLeft);
-			scene->Add(topRight);
-			scene->Add(botLeft);
-			scene->Add(botRight);
-		}
-
-		void Color(PxVec3 color)
-		{
-			topLeft->Color(color);
-			topRight->Color(color);
-			botLeft->Color(color);
-			botRight->Color(color);
-		}
-
-		void Material(PxMaterial* material)
-		{
-			topLeft->Material(material);
-			topRight->Material(material);
-			botLeft->Material(material);
-			botRight->Material(material);
+			CreateShape(PxBoxGeometry(dimensions), density);
+			CreateShape(PxBoxGeometry(dimensions), density);
+			CreateShape(PxBoxGeometry(dimensions), density);
+			CreateShape(PxBoxGeometry(dimensions), density);
+			GetShape(0)->setLocalPose(PxTransform(PxVec3(pose.p.x + 7.0f, pose.p.y, pose.p.z + 7.0f)));
+			GetShape(1)->setLocalPose(PxTransform(PxVec3(pose.p.x - 7.0f, pose.p.y, pose.p.z + 7.0f)));
+			GetShape(2)->setLocalPose(PxTransform(PxVec3(pose.p.x + 7.0f, pose.p.y, pose.p.z - 7.0f)));
+			GetShape(3)->setLocalPose(PxTransform(PxVec3(pose.p.x - 7.0f, pose.p.y, pose.p.z - 7.0f)));
 		}
 	};
 
@@ -315,6 +293,26 @@ namespace PhysicsEngine
 		{
 			((PxRevoluteJoint*)joint)->setLimit(PxJointAngularLimitPair(lower, upper));
 			((PxRevoluteJoint*)joint)->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, true);
+		}
+	};
+
+	class dSixJoint : public Joint
+	{
+	public:
+		dSixJoint(Actor* actor0, const PxTransform& localFrame0, Actor* actor1, const PxTransform& localFrame1)
+		{
+			PxRigidActor* px_actor0 = 0;
+			if (actor0)
+				px_actor0 = (PxRigidActor*)actor0->Get();
+
+			joint = PxD6JointCreate(*GetPhysics(), px_actor0, localFrame0, (PxRigidActor*)actor1->Get(), localFrame1);
+			joint->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
+		}
+
+		void SetMotion(PxD6Axis::Enum Axis, PxD6Motion::Enum free)
+		{
+			//((PxD6Joint*)joint)->setMotion(axis, free);
+			((PxD6Joint*)joint)->setMotion(Axis, free);
 		}
 	};
 }

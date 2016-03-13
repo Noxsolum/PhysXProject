@@ -244,10 +244,11 @@ namespace PhysicsEngine
 		StaticSphere* planet, * planet2;
 		DynamSphere* meteor, *planet3;
 		DynamSphere* Indicator;
-		RevoluteJoint* indieJoint, * planetJoint;
+		RevoluteJoint* indieJoint, *planetJoint;
+		dSixJoint *d6Joint;
 		Goal* newGoal;
 		SpringWalls* SpringLeft, *SpringRight;
-		Obstacle* obstacle;
+		Obstacle* obstacle, * obstacletwo;
 
 		
 	public:
@@ -300,7 +301,8 @@ namespace PhysicsEngine
 				planet2 = new StaticSphere(PxTransform(PxVec3(-550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
 				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
-				obstacle = new Obstacle(PxVec3(0.0f, 0.5f, 0.0f));
+				obstacle = new Obstacle(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
+				obstacletwo = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
 				SpringRight = new SpringWalls();
 				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
@@ -324,6 +326,7 @@ namespace PhysicsEngine
 				planet3->Color(color_palette[3]);
 				meteor->Color(color_palette[4]);
 				obstacle->Color(color_palette[3]);
+				obstacletwo->Color(color_palette[3]);
 				borderBot->Color(color_palette[5]);
 				borderLeft->Color(color_palette[5]);
 				borderRight->Color(color_palette[5]);
@@ -339,6 +342,9 @@ namespace PhysicsEngine
 				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.0f, 10.0f)));
 				//planetJoint->DriveVelocity(PxReal(6.0f));
+				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				d6Joint->SetMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+				d6Joint->SetMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
 
 				// =========
 				// Triggers
@@ -350,13 +356,16 @@ namespace PhysicsEngine
 				// ==========
 				SpringLeft->Material(bouncyMat);
 				SpringRight->Material(bouncyMat);
+				obstacle->Material(bouncyMat);
+				obstacletwo->Material(bouncyMat);
 
 				// =============
 				// Add to Scene
 				// =============
 				Add(plane);
 				newGoal->AddToScene(this);
-				obstacle->AddToScene(this);
+				Add(obstacle);
+				Add(obstacletwo);
 				Add(meteor);
 				Add(planet);
 				//Add(planet2);

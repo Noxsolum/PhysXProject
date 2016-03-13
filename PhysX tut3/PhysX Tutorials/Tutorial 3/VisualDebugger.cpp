@@ -303,7 +303,7 @@ namespace VisualDebugger
 			scene->GetSelectedActor()->addForce(PxVec3(leftToRight, 0, 1) * velocity);
 			break;
 		//case 'C':
-		//	cout << scene->GetSpecificActor()->getName();
+		//	scene->Get()
 		//	//scene->GetSpecificActor()->addForce(PxVec3(0, 1, 0) * 10);
 		//	cout << "C";
 		//	break;
@@ -311,7 +311,6 @@ namespace VisualDebugger
 			break;
 		}
 	}
-	
 
 	///handle special keys
 	void KeySpecial(int key, int x, int y)
