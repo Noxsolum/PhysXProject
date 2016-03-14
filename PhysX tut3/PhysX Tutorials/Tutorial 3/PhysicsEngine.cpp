@@ -307,38 +307,10 @@ namespace PhysicsEngine
 		return selected_actor;
 	}
 
-	//PxRigidDynamic* Scene::GetSpecificActor()
-	//{
-
-	//	return specific_actor;
-	//}
-
-	//void Scene::SelectSpecificActor()
-	//{
-	//	std::vector<PxRigidDynamic*> actors(px_scene->getNbActors(PxActorTypeSelectionFlag::eRIGID_DYNAMIC));
-	//	if (actors.size() && (px_scene->getActors(PxActorTypeSelectionFlag::eRIGID_DYNAMIC, (PxActor**)&actors.front(), (PxU32)actors.size())))
-	//	{
-	//		if (specific_actor)
-	//		{
-	//			for (unsigned int i = 0; i < actors.size(); i++)
-	//				if (specific_actor == actors[i])
-	//				{
-	//					HighlightOff(specific_actor);
-	//					//select the next actor
-	//					//selected_actor = actors[(i+1)%actors.size()];
-	//					specific_actor = actors[1 % actors.size()];
-	//					break;
-	//				}
-	//		}
-	//		else
-	//		{
-	//			specific_actor = actors[1];
-	//		}
-	//		HighlightOn(specific_actor);
-	//	}
-	//	else
-	//		specific_actor = 0;
-	//}
+	PxRigidDynamic* Scene::GetIndicatorActor()
+	{
+		return getIndicator;
+	}
 
 	void Scene::SelectNextActor()
 	{
@@ -353,17 +325,22 @@ namespace PhysicsEngine
 						HighlightOff(selected_actor);
 						//select the next actor
 						selected_actor = actors[(i+1)%actors.size()];
+						getIndicator = actors[1];
 						break;
 					}
 			}
 			else
 			{
 				selected_actor = actors[0];
+				getIndicator = actors[1];
 			}
 			HighlightOn(selected_actor);
 		}
 		else
+		{
 			selected_actor = 0;
+			getIndicator = 0;
+		}
 	}
 
 	std::vector<PxActor*> Scene::GetAllActors()

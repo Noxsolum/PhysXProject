@@ -302,11 +302,10 @@ namespace VisualDebugger
 			disableMove = true;
 			scene->GetSelectedActor()->addForce(PxVec3(leftToRight, 0, 1) * velocity);
 			break;
-		//case 'C':
-		//	scene->Get()
-		//	//scene->GetSpecificActor()->addForce(PxVec3(0, 1, 0) * 10);
-		//	cout << "C";
-		//	break;
+		case 'C':
+			//scene->GetIndicatorActor()->addForce(PxVec3(leftToRight, 0.0f, 1.0f) * 10000);
+			cout << "C";
+			break;
 		default:
 			break;
 		}
@@ -366,6 +365,7 @@ namespace VisualDebugger
 		case GLUT_KEY_LEFT:
 			while (leftToRight < 2 && disableMove == false)
 			{
+				scene->GetIndicatorActor()->addForce(PxVec3(leftToRight, 0.0f, 1.0f) * 10000);
 				leftToRight = leftToRight + 0.1;
 				cout << "Direction: " << leftToRight << endl;
 				break;
@@ -374,7 +374,7 @@ namespace VisualDebugger
 		case GLUT_KEY_RIGHT:
 			while (leftToRight > -2 && disableMove == false)
 			{
-
+				scene->GetIndicatorActor()->addForce(PxVec3(leftToRight, 0.0f, 1.0f) * 10000);
 				leftToRight = leftToRight - 0.1;
 				cout << "Direction: " << leftToRight << endl;
 				break;

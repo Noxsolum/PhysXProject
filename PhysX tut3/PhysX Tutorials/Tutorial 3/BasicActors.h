@@ -311,7 +311,6 @@ namespace PhysicsEngine
 
 		void SetMotion(PxD6Axis::Enum Axis, PxD6Motion::Enum free)
 		{
-			//((PxD6Joint*)joint)->setMotion(axis, free);
 			((PxD6Joint*)joint)->setMotion(Axis, free);
 		}
 	};

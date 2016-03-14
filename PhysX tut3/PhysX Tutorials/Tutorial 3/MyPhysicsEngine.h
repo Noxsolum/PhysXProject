@@ -276,6 +276,7 @@ namespace PhysicsEngine
 			// Creating Materials
 			// ===================
 			PxMaterial* bouncyMat = CreateMaterial(0.0f, 0.0f, 1.0f);
+			PxMaterial* SUPERFRICTION = CreateMaterial(0.1f, 0.0f, 0.0f);
 			GetMaterial()->setDynamicFriction(0.0f);
 
 			// ==========
@@ -309,12 +310,12 @@ namespace PhysicsEngine
 				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
-				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+				Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 
 				// =============
 				// Setting Name
 				// =============
-				//Indicator->Name("Indicator");
+				Indicator->Name("Indicator");
 
 				// ==================
 				// Colouring Objects
@@ -333,13 +334,13 @@ namespace PhysicsEngine
 				borderTop->Color(color_palette[5]);
 				SpringLeft->Color(color_palette[5], color_palette[1]);
 				SpringRight->Color(color_palette[5], color_palette[1]);
-				//Indicator->Color(color_palette[6]);
+				Indicator->Color(color_palette[6]);
 
 				// =======
 				// Joints
 				// =======
-				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
+				indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
+				indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.0f, 10.0f)));
 				//planetJoint->DriveVelocity(PxReal(6.0f));
 				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
@@ -358,6 +359,7 @@ namespace PhysicsEngine
 				SpringRight->Material(bouncyMat);
 				obstacle->Material(bouncyMat);
 				obstacletwo->Material(bouncyMat);
+				Indicator->Material(SUPERFRICTION);
 
 				// =============
 				// Add to Scene
@@ -367,6 +369,7 @@ namespace PhysicsEngine
 				Add(obstacle);
 				Add(obstacletwo);
 				Add(meteor);
+				Add(Indicator);
 				Add(planet);
 				//Add(planet2);
 				//Add(planet3);
@@ -374,7 +377,6 @@ namespace PhysicsEngine
 				Add(borderTop);
 				Add(borderLeft);
 				Add(borderRight);
-				//Add(Indicator);
 				SpringRight->AddToScene(this);
 				SpringLeft->AddToScene(this);
 				break;
@@ -419,6 +421,9 @@ namespace PhysicsEngine
 				////indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 10.0f)));
 				//planetJoint->DriveVelocity(PxReal(6.0f));
+				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				d6Joint->SetMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+				d6Joint->SetMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
 
 				// =========
 				// Triggers
@@ -492,6 +497,9 @@ namespace PhysicsEngine
 				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 15.0f)));
 				planetJoint->DriveVelocity(PxReal(4.0f));
+				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				d6Joint->SetMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+				d6Joint->SetMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
 				
 				// =========
 				// Triggers
@@ -565,6 +573,9 @@ namespace PhysicsEngine
 				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 15.0f)));
 				planetJoint->DriveVelocity(PxReal(3.0f));
+				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				d6Joint->SetMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+				d6Joint->SetMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
 
 				// =========
 				// Triggers
@@ -672,6 +683,7 @@ namespace PhysicsEngine
 		//Custom udpate function
 		virtual void CustomUpdate() 
 		{
+			((PxRigidBody*)Indicator->Get())->addForce(PxVec3(0.0f, 0.0f, 1.0f));
 			AddGravity(planet, meteor);
 			AddGravity(planet2, meteor);
 			AddGravityDynamic(planet3, meteor);
