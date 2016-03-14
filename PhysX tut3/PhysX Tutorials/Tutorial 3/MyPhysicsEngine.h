@@ -240,10 +240,9 @@ namespace PhysicsEngine
 		Plane* plane;
 		Box* box, * box2;
 		MySimulationEventCallback* my_callback;
-		Rectangle* borderTop, *borderBot, *borderLeft, *borderRight;
+		Rectangle* borderTop, *borderBot, *borderLeft, *borderRight, *Indicator2;
 		StaticSphere* planet, * planet2;
-		DynamSphere* meteor, *planet3;
-		DynamSphere* Indicator;
+		DynamSphere* meteor, *planet3, *Indicator;
 		RevoluteJoint* indieJoint, *planetJoint;
 		dSixJoint *d6Joint;
 		Goal* newGoal;
@@ -276,7 +275,7 @@ namespace PhysicsEngine
 			// Creating Materials
 			// ===================
 			PxMaterial* bouncyMat = CreateMaterial(0.0f, 0.0f, 1.0f);
-			PxMaterial* SUPERFRICTION = CreateMaterial(0.1f, 0.0f, 0.0f);
+			PxMaterial* SUPERFRICTION = CreateMaterial(0.0f, 0.1f, 0.0f);
 			GetMaterial()->setDynamicFriction(0.0f);
 
 			// ==========
@@ -310,12 +309,12 @@ namespace PhysicsEngine
 				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
-				Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
-
+				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+				
 				// =============
 				// Setting Name
 				// =============
-				Indicator->Name("Indicator");
+				//Indicator->Name("Indicator");
 
 				// ==================
 				// Colouring Objects
@@ -334,13 +333,13 @@ namespace PhysicsEngine
 				borderTop->Color(color_palette[5]);
 				SpringLeft->Color(color_palette[5], color_palette[1]);
 				SpringRight->Color(color_palette[5], color_palette[1]);
-				Indicator->Color(color_palette[6]);
-
+				//Indicator->Color(color_palette[5]);
+				
 				// =======
 				// Joints
 				// =======
-				indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-				indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
+				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
+				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.0f, 10.0f)));
 				//planetJoint->DriveVelocity(PxReal(6.0f));
 				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
@@ -359,7 +358,7 @@ namespace PhysicsEngine
 				SpringRight->Material(bouncyMat);
 				obstacle->Material(bouncyMat);
 				obstacletwo->Material(bouncyMat);
-				Indicator->Material(SUPERFRICTION);
+				//Indicator->Material(SUPERFRICTION);
 
 				// =============
 				// Add to Scene
@@ -369,7 +368,7 @@ namespace PhysicsEngine
 				Add(obstacle);
 				Add(obstacletwo);
 				Add(meteor);
-				Add(Indicator);
+				//Add(Indicator);
 				Add(planet);
 				//Add(planet2);
 				//Add(planet3);
@@ -398,7 +397,6 @@ namespace PhysicsEngine
 				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
-				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 
 				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 				newGoal->Color(color_palette[1]);
@@ -412,13 +410,10 @@ namespace PhysicsEngine
 				borderTop->Color(color_palette[5]);
 				SpringLeft->Color(color_palette[5], color_palette[1]);
 				SpringRight->Color(color_palette[5], color_palette[1]);
-				//Indicator->Color(color_palette[6]);
 
 				// =======
 				// Joints
 				// =======
-				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-				////indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 10.0f)));
 				//planetJoint->DriveVelocity(PxReal(6.0f));
 				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
@@ -451,7 +446,6 @@ namespace PhysicsEngine
 				Add(borderRight);
 				SpringRight->AddToScene(this);
 				SpringLeft->AddToScene(this);
-				//Add(Indicator);
 				break;
 			case 2:
 				triggerBool = false;
@@ -471,7 +465,6 @@ namespace PhysicsEngine
 				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
-				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 
 				// ==================
 				// Colouring Objects
@@ -488,13 +481,10 @@ namespace PhysicsEngine
 				borderTop->Color(color_palette[5]);
 				SpringLeft->Color(color_palette[5], color_palette[1]);
 				SpringRight->Color(color_palette[5], color_palette[1]);
-				//Indicator->Color(color_palette[6]);
 
 				// =======
 				// Joints
 				// =======
-				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 15.0f)));
 				planetJoint->DriveVelocity(PxReal(4.0f));
 				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
@@ -527,7 +517,6 @@ namespace PhysicsEngine
 				Add(borderRight);
 				SpringRight->AddToScene(this);
 				SpringLeft->AddToScene(this);
-				//Add(Indicator);
 				break;
 			case 3:
 				triggerBool = false;
@@ -547,7 +536,6 @@ namespace PhysicsEngine
 				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
-				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 
 				// ==================
 				// Colouring Objects
@@ -564,13 +552,10 @@ namespace PhysicsEngine
 				borderTop->Color(color_palette[5]);
 				SpringLeft->Color(color_palette[5], color_palette[1]);
 				SpringRight->Color(color_palette[5], color_palette[1]);
-				//Indicator->Color(color_palette[6]);
 
 				// =======
 				// Joints
 				// =======
-				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 15.0f)));
 				planetJoint->DriveVelocity(PxReal(3.0f));
 				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
@@ -603,7 +588,6 @@ namespace PhysicsEngine
 				Add(borderRight);
 				SpringRight->AddToScene(this);
 				SpringLeft->AddToScene(this);
-				//Add(Indicator);
 				break;
 			default:
 				break;
@@ -683,7 +667,6 @@ namespace PhysicsEngine
 		//Custom udpate function
 		virtual void CustomUpdate() 
 		{
-			((PxRigidBody*)Indicator->Get())->addForce(PxVec3(0.0f, 0.0f, 1.0f));
 			AddGravity(planet, meteor);
 			AddGravity(planet2, meteor);
 			AddGravityDynamic(planet3, meteor);
@@ -691,6 +674,22 @@ namespace PhysicsEngine
 			{
 				triggerBool = true;
 			}
+		}
+
+		void getDistance(DynamSphere* indie, DynamSphere* meteor)
+		{
+			PxTransform planetPose = ((PxRigidBody*)indie->Get())->getGlobalPose();
+			PxTransform meteorPose = ((PxRigidBody*)meteor->Get())->getGlobalPose();
+
+			PxReal px = planetPose.p.x;
+			PxReal pz = planetPose.p.z;
+			PxReal mx = meteorPose.p.x;
+			PxReal mz = meteorPose.p.z;
+
+			PxReal x = PxAbs(px) - PxAbs(mx);
+			PxReal y = PxAbs(pz) - PxAbs(mz);
+			PxReal z = PxSqrt((x*x) + (y*y));
+			cout << z << endl;
 		}
 
 		///Gravity for an object

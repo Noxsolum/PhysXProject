@@ -7,6 +7,7 @@
 namespace VisualDebugger
 {
 	using namespace physx;
+	using namespace std;
 
 	enum RenderMode
 	{
@@ -20,7 +21,8 @@ namespace VisualDebugger
 		EMPTY = 0,
 		HELP = 1,
 		PAUSE = 2,
-		WINSCREEN = 3
+		WINSCREEN = 3,
+		INDICATOR = 4
 	};
 
 	//function declarations
@@ -41,16 +43,20 @@ namespace VisualDebugger
 	///simulation objects
 	Camera* camera;
 	PhysicsEngine::MyScene* scene;
-	PxReal delta_time = 1.f/60.f;
+	PxReal delta_time = 1.f / 60.f;
 	PxReal gForceStrength = 20;
 	RenderMode render_mode = NORMAL;
 	const int MAX_KEYS = 256;
 	bool key_state[MAX_KEYS];
 	bool hud_show = true;
 	HUD hud;
-	PxReal leftToRight = 0;
-	bool disableMove = false;
-	PxReal velocity = 0;
+	float leftToRight = 0;
+	int direction = leftToRight * 10;
+	bool disableMove = true;
+	int velocity = 0;
+	static const PxVec3 Indicator[] = { PxVec3(9.2f, 0.5f, 3.9f), PxVec3(9.08f, 0.5f, 4.18f), PxVec3(8.91f, 0.5f, 4.54f), PxVec3(8.72f, 0.5f, 4.89f), PxVec3(8.52f, 0.5f, 5.23f), PxVec3(8.41f, 0.5f, 5.4f), PxVec3(8.08f, 0.5f, 5.9f), PxVec3(7.83f, 0.5f, 6.22f), PxVec3(7.58f, 0.5f, 6.52f), PxVec3(7.31f, 0.5f, 6.82f), PxVec3(7.1f, 0.5f, 7.04), PxVec3(6.52f, 0.5f, 7.58f), PxVec3(5.89f, 0.5f, 8.08f), PxVec3(5.23f, 0.5f, 8.53f), PxVec3(4.53f, 0.5f, 8.92f), PxVec3(3.8f, 0.5f, 9.25f), PxVec3(3.05f, 0.5f, 9.52f), PxVec3(2.38f, 0.5f, 9.71f), PxVec3(1.59f, 0.5f, 9.87f), PxVec3(0.8f, 0.5f, 9.97f) };
+	std::string velocityOut = "Velocity: " + std::to_string(velocity);
+	std::string directionOut = "Direction: " + std::to_string(direction);
 
 	//Init the debugger
 	void Init(const char *window_name, int width, int height)
@@ -66,7 +72,7 @@ namespace VisualDebugger
 		Renderer::InitWindow(window_name, width, height);
 		Renderer::Init();
 
-		camera = new Camera(PxVec3(0.0f, 100.0f, -5.0f), PxVec3(0.0f, -90.0f, PxPi), 5.0f);
+		camera = new Camera(PxVec3(0.0f, 105.0f, -5.0f), PxVec3(0.0f, -90.0f, PxPi), 5.0f);
 
 		//initialise HUD
 		HUDInit();
@@ -81,8 +87,8 @@ namespace VisualDebugger
 		glutKeyboardUpFunc(KeyRelease);
 
 		//mouse
-		glutMouseFunc(mouseCallback);
-		glutMotionFunc(motionCallback);
+		//glutMouseFunc(mouseCallback);
+		//glutMotionFunc(motionCallback);
 
 		//exit
 		atexit(exitCallback);
@@ -96,6 +102,9 @@ namespace VisualDebugger
 		// ===============
 		// initialise HUD
 		// ===============
+
+		// Creating the string
+		//velocityOut = "fdfsfds %d", velocity;
 
 		//add an empty screen
 		hud.AddLine(EMPTY, "");
@@ -116,11 +125,11 @@ namespace VisualDebugger
 		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, "                                                               Instructions!");
-		hud.AddLine(HELP, "                                                             F5 - help on/off");
 		hud.AddLine(HELP, "                                           Right Arrow, Left Arrow - Aim Left or Right!");
 		hud.AddLine(HELP, "                                        Top Arrow, Bottom Arrow - Add or Remove Velocity!");
 		hud.AddLine(HELP, "                Hold Space once you have selected the direction and amount of velocity you want!");
-		hud.AddLine(HELP, "                                                    Press F11 to reset the ball!");
+		hud.AddLine(HELP, "                                                     Press F11 to reset the ball!");
+		hud.AddLine(HELP, "                                                                 F5 - To Begin");
 		//hud.AddLine(HELP, "    F6 - shadows on/off");
 		//hud.AddLine(HELP, "    F7 - render mode");
 		//hud.AddLine(HELP, " Camera");
@@ -130,12 +139,54 @@ namespace VisualDebugger
 		//hud.AddLine(HELP, " Force (applied to the selected actor)");
 		//hud.AddLine(HELP, "    I,K,J,L,U,M - forward,backward,left,right,up,down");
 
+		// =============
 		// Pause Screen
+		// =============
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "   Simulation paused. Press F10 to continue.");
 
+		// ==========
+		// INDICATOR
+		// ==========
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, velocityOut);
+		hud.AddLine(INDICATOR, directionOut);
 		// Win Screen
 		hud.AddLine(WINSCREEN, "");
 		hud.AddLine(WINSCREEN, "");
@@ -145,6 +196,7 @@ namespace VisualDebugger
 		//set font size for all screens
 		hud.FontSize(0.018f);
 		hud.FontSize(0.06f, 3);
+		hud.FontSize(0.025f, 4);
 		//set font color for all screens
 		hud.Color(PxVec3(0.f,0.f,0.f));
 	}
@@ -160,7 +212,6 @@ namespace VisualDebugger
 	{
 		//handle pressed keys
 		KeyHold();
-		PxReal leftToRight = 0;
 
 		//start rendering
 		Renderer::Start(camera->getEye(), camera->getDir());
@@ -195,7 +246,7 @@ namespace VisualDebugger
 		}
 		else
 		{
-			hud.ActiveScreen(EMPTY);
+			hud.ActiveScreen(INDICATOR);
 			if (scene->triggerBool)
 			{
 				hud_show = true;
@@ -204,6 +255,12 @@ namespace VisualDebugger
 
 		//render HUD
 		hud.Render();
+
+		hud.Clear();
+		HUDInit();
+		int direction = leftToRight * 10;
+		velocityOut = "   Velocity: " + std::to_string(velocity);
+		directionOut = "   Direction: " + std::to_string(direction);
 
 		//finish rendering
 		Renderer::Finish();
@@ -300,11 +357,7 @@ namespace VisualDebugger
 			break;
 		case ' ':
 			disableMove = true;
-			scene->GetSelectedActor()->addForce(PxVec3(leftToRight, 0, 1) * velocity);
-			break;
-		case 'C':
-			//scene->GetIndicatorActor()->addForce(PxVec3(leftToRight, 0.0f, 1.0f) * 10000);
-			cout << "C";
+			scene->GetSelectedActor()->setLinearVelocity(PxVec3(leftToRight, 0, 1) * velocity);
 			break;
 		default:
 			break;
@@ -321,6 +374,7 @@ namespace VisualDebugger
 			//display control
 		case GLUT_KEY_F5:
 			//hud on/off
+			disableMove = false;
 			hud_show = !hud_show;
 			break;
 		case GLUT_KEY_F6:
@@ -360,21 +414,25 @@ namespace VisualDebugger
 			scene->Reset();
 			leftToRight = 0;
 			velocity = 0;
-			//scene->
 			break;
 		case GLUT_KEY_LEFT:
 			while (leftToRight < 2 && disableMove == false)
 			{
-				scene->GetIndicatorActor()->addForce(PxVec3(leftToRight, 0.0f, 1.0f) * 10000);
+				//scene->GetIndicatorActor()->setGlobalPose(PxTransform(PxVec3(Indicator[leftToRight])));
+				//scene->GetIndicatorActor()->setGlobalPose(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+				//scene->GetIndicatorActor()->setLinearVelocity(PxVec3(leftToRight, 0.0f, 1.0f) * 1000);
+				//scene->GetIndicatorActor()->addForce(PxVec3(leftToRight, 0.0f, 1.0f) * 10000);
 				leftToRight = leftToRight + 0.1;
 				cout << "Direction: " << leftToRight << endl;
+	
 				break;
 			}
 			break;
 		case GLUT_KEY_RIGHT:
 			while (leftToRight > -2 && disableMove == false)
 			{
-				scene->GetIndicatorActor()->addForce(PxVec3(leftToRight, 0.0f, 1.0f) * 10000);
+				//scene->GetIndicatorActor()->setGlobalPose(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
+				//scene->GetIndicatorActor()->setLinearVelocity(PxVec3(leftToRight, 0.0f, 1.0f) * 1000);
 				leftToRight = leftToRight - 0.1;
 				cout << "Direction: " << leftToRight << endl;
 				break;
