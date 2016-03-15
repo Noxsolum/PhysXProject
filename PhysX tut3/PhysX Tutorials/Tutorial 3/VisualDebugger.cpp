@@ -87,8 +87,8 @@ namespace VisualDebugger
 		glutKeyboardUpFunc(KeyRelease);
 
 		//mouse
-		//glutMouseFunc(mouseCallback);
-		//glutMotionFunc(motionCallback);
+		glutMouseFunc(mouseCallback);
+		glutMotionFunc(motionCallback);
 
 		//exit
 		atexit(exitCallback);
@@ -97,24 +97,19 @@ namespace VisualDebugger
 		motionCallback(0,0);
 	}
 
+	// ===============
+	// initialise HUD
+	// ===============
 	void HUDInit()
 	{
-		// ===============
-		// initialise HUD
-		// ===============
-
-		// Creating the string
-		//velocityOut = "fdfsfds %d", velocity;
-
-		//add an empty screen
+		// =================
+		// Empty HUD Screen
+		// =================
 		hud.AddLine(EMPTY, "");
-		//add a help screen
-		//hud.AddLine(HELP, " Simulation");
-		//hud.AddLine(HELP, "    F9 - select next actor");
-		//hud.AddLine(HELP, "    F10 - pause");
-		//hud.AddLine(HELP, "    F12 - reset");
 
+		// =============
 		// Instructions
+		// =============
 		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, "");
@@ -129,15 +124,9 @@ namespace VisualDebugger
 		hud.AddLine(HELP, "                                        Top Arrow, Bottom Arrow - Add or Remove Velocity!");
 		hud.AddLine(HELP, "                Hold Space once you have selected the direction and amount of velocity you want!");
 		hud.AddLine(HELP, "                                                     Press F11 to reset the ball!");
+		hud.AddLine(HELP, "");
+		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, "                                                                 F5 - To Begin");
-		//hud.AddLine(HELP, "    F6 - shadows on/off");
-		//hud.AddLine(HELP, "    F7 - render mode");
-		//hud.AddLine(HELP, " Camera");
-		//hud.AddLine(HELP, "    W,S,A,D,Q,Z - forward,backward,left,right,up,down");
-		//hud.AddLine(HELP, "    mouse + click - change orientation");
-		//hud.AddLine(HELP, "    F8 - reset view");
-		//hud.AddLine(HELP, " Force (applied to the selected actor)");
-		//hud.AddLine(HELP, "    I,K,J,L,U,M - forward,backward,left,right,up,down");
 
 		// =============
 		// Pause Screen
@@ -148,7 +137,7 @@ namespace VisualDebugger
 		hud.AddLine(PAUSE, "   Simulation paused. Press F10 to continue.");
 
 		// ==========
-		// INDICATOR
+		// Indicator
 		// ==========
 		hud.AddLine(INDICATOR, "");
 		hud.AddLine(INDICATOR, "");
@@ -187,17 +176,26 @@ namespace VisualDebugger
 		hud.AddLine(INDICATOR, "");
 		hud.AddLine(INDICATOR, velocityOut);
 		hud.AddLine(INDICATOR, directionOut);
+
+		// ===========
 		// Win Screen
+		// ===========
 		hud.AddLine(WINSCREEN, "");
 		hud.AddLine(WINSCREEN, "");
 		hud.AddLine(WINSCREEN, "");
 		hud.AddLine(WINSCREEN, "                YOU WIN!");
 		hud.AddLine(WINSCREEN, "     Press F12 to continue!");
-		//set font size for all screens
+
+		// ==========
+		// Font Size
+		// ==========
 		hud.FontSize(0.018f);
 		hud.FontSize(0.06f, 3);
 		hud.FontSize(0.025f, 4);
-		//set font color for all screens
+
+		// ===========
+		// Font Color
+		// ===========
 		hud.Color(PxVec3(0.f,0.f,0.f));
 	}
 
@@ -256,6 +254,9 @@ namespace VisualDebugger
 		//render HUD
 		hud.Render();
 
+		// =======================================
+		// Dynamic HUD for Direction and Velocity
+		// =======================================
 		hud.Clear();
 		HUDInit();
 		int direction = leftToRight * 10;
@@ -269,7 +270,9 @@ namespace VisualDebugger
 		scene->Update(delta_time);
 	}
 
-	//user defined keyboard handlers
+	// ===========================================
+	// User Defined Keyboard Handlers - Key Press
+	// ===========================================
 	void UserKeyPress(int key)
 	{
 		switch (toupper(key))
@@ -283,6 +286,9 @@ namespace VisualDebugger
 		}
 	}
 
+	// =============================================
+	// User Defined Keyboard Handlers - Key Release
+	// =============================================
 	void UserKeyRelease(int key)
 	{
 		switch (toupper(key))
@@ -296,11 +302,17 @@ namespace VisualDebugger
 		}
 	}
 
+	// ==========================================
+	// User Defined Keyboard Handlers - Key Hold
+	// ==========================================
 	void UserKeyHold(int key)
 	{
 	}
 
-	//handle camera control keys
+	// ===========================
+	// handle camera control keys
+	// ===========================
+	/*
 	void CameraInput(int key)
 	{
 		switch (toupper(key))
@@ -326,9 +338,11 @@ namespace VisualDebugger
 		default:
 			break;
 		}
-	}
-
-	//handle force control keys
+	} */
+	
+	// =======================
+	// Handling the space bar
+	// =======================
 	void ForceInput(int key)
 	{	
 		if (!scene->GetSelectedActor())
@@ -336,25 +350,6 @@ namespace VisualDebugger
 
 		switch (toupper(key))
 		{
-			// Force controls on the selected actor
-		case 'I': //forward
-			scene->GetSelectedActor()->addForce(PxVec3(0, 0, 1)*gForceStrength);
-			break;
-		case 'K': //backward
-			scene->GetSelectedActor()->addForce(PxVec3(0, 0, -1)*gForceStrength);
-			break;
-		case 'J': //left
-			scene->GetSelectedActor()->addForce(PxVec3(1, 0, 0)*gForceStrength);
-			break;
-		case 'L': //right
-			scene->GetSelectedActor()->addForce(PxVec3(-1, 0, 0)*gForceStrength);
-			break;
-		case 'U': // Top Left
-			scene->GetSelectedActor()->addForce(PxVec3(2, 0, 1)*gForceStrength);
-			break;
-		case 'O': // Top Right
-			scene->GetSelectedActor()->addForce(PxVec3(-0.5, 0, 0)*gForceStrength);
-			break;
 		case ' ':
 			disableMove = true;
 			scene->GetSelectedActor()->setLinearVelocity(PxVec3(leftToRight, 0, 1) * velocity);
@@ -364,64 +359,73 @@ namespace VisualDebugger
 		}
 	}
 
-	///handle special keys
+	// ====================
+	// Handle Special Keys
+	// ====================
 	void KeySpecial(int key, int x, int y)
 	{
 		bool AddOne = true;
-		//simulation control
+
 		switch (key)
 		{
-			//display control
+		// ============================
+		// Turn off HUD and Begin Game
+		// ============================
 		case GLUT_KEY_F5:
-			//hud on/off
 			disableMove = false;
 			hud_show = !hud_show;
 			break;
+		// ==================
+		// Shadows On or Off
+		// ==================
 		case GLUT_KEY_F6:
-			//shadows on/off
 			Renderer::ShowShadows(!Renderer::ShowShadows());
 			break;
+		// ===================
+		// Toggle Render Mode
+		//====================
 		case GLUT_KEY_F7:
-			//toggle render mode
 			ToggleRenderMode();
 			break;
+		// ==================
+		// Reset Camera View
+		// ==================
 		case GLUT_KEY_F8:
-			//reset camera view
 			camera->Reset();
 			break;
-
-			//simulation control
-		case GLUT_KEY_F9:
-			//select next actor
-			scene->SelectNextActor();
-			break;
+		// ==================
+		// Toggle Scene Pause
+		// ==================
 		case GLUT_KEY_F10:
-			//toggle scene pause
 			scene->Pause(!scene->Pause());
 			break;
+		// ===============
+		// Reset the Ball
+		// ===============
 		case GLUT_KEY_F11:
-			//reset ball
 			disableMove = false;
 			scene->GetSelectedActor()->setGlobalPose(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
 			scene->GetSelectedActor()->putToSleep();
 			scene->GetSelectedActor()->clearForce();
 			scene->GetSelectedActor()->clearTorque();
 			break;
+		// ==================
+		// Refresh the Scene
+		// ==================
 		case GLUT_KEY_F12:
 			//reset scene
-			disableMove = false;
-			//int NextLevelSave = scene->NextLevel;
 			scene->Reset();
 			leftToRight = 0;
 			velocity = 0;
+			disableMove = false;
+			hud_show = false;
 			break;
+		// ======================
+		// Setting the Direction
+		// ======================
 		case GLUT_KEY_LEFT:
 			while (leftToRight < 2 && disableMove == false)
 			{
-				//scene->GetIndicatorActor()->setGlobalPose(PxTransform(PxVec3(Indicator[leftToRight])));
-				//scene->GetIndicatorActor()->setGlobalPose(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
-				//scene->GetIndicatorActor()->setLinearVelocity(PxVec3(leftToRight, 0.0f, 1.0f) * 1000);
-				//scene->GetIndicatorActor()->addForce(PxVec3(leftToRight, 0.0f, 1.0f) * 10000);
 				leftToRight = leftToRight + 0.1;
 				cout << "Direction: " << leftToRight << endl;
 	
@@ -431,15 +435,16 @@ namespace VisualDebugger
 		case GLUT_KEY_RIGHT:
 			while (leftToRight > -2 && disableMove == false)
 			{
-				//scene->GetIndicatorActor()->setGlobalPose(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
-				//scene->GetIndicatorActor()->setLinearVelocity(PxVec3(leftToRight, 0.0f, 1.0f) * 1000);
 				leftToRight = leftToRight - 0.1;
 				cout << "Direction: " << leftToRight << endl;
 				break;
 			}
 			break;
+		// ======================
+		// Setting the Velocity
+		// ======================
 		case GLUT_KEY_UP:
-			while (disableMove == false)
+			while (velocity < 100 && disableMove == false)
 			{
 				velocity++;
 				cout << "Velocity: " << velocity << endl;
@@ -489,14 +494,14 @@ namespace VisualDebugger
 		{
 			if (key_state[i]) // if key down
 			{
-				CameraInput(i);
+				//CameraInput(i);
 				ForceInput(i);
 				UserKeyHold(i);
 			}
 		}
 	}
 
-	///mouse handling
+	//mouse handling
 	int mMouseX = 0;
 	int mMouseY = 0;
 

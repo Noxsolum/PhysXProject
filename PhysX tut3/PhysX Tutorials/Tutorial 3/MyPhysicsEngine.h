@@ -8,37 +8,17 @@
 namespace PhysicsEngine
 {
 	using namespace std;
-	static int LevelCount = 0;
 
-	//a list of colours: Circus Palette
-	static const PxVec3 color_palette[] = {PxVec3(46.f/255.f,9.f/255.f,39.f/255.f),PxVec3(217.f/255.f,0.f/255.f,0.f/255.f),
-		PxVec3(255.f/255.f,45.f/255.f,0.f/255.f),PxVec3(255.f/255.f,140.f/255.f,54.f/255.f),PxVec3(4.f/255.f,117.f/255.f,111.f/255.f)};
+	// ==============
+	// Level Counter
+	// ==============
+	static int LevelCount = 9;
 
-	//pyramid vertices
-	static PxVec3 pyramid_verts[] = {PxVec3(0,1,0), PxVec3(1,0,0), PxVec3(-1,0,0), PxVec3(0,0,1), PxVec3(0,0,-1)};
-	//pyramid triangles: a list of three vertices for each triangle e.g. the first triangle consists of vertices 1, 4 and 0
-	//vertices have to be specified in a counter-clockwise order to assure the correct shading in rendering
-	static PxU32 pyramid_trigs[] = {1, 4, 0, 3, 1, 0, 2, 3, 0, 4, 2, 0, 3, 2, 1, 2, 4, 1};
+	// ========
+	// Colours
+	// ========
+	static const PxVec3 color_palette[] = {PxVec3(46.f/255.f,9.f/255.f,39.f/255.f),PxVec3(217.f/255.f,0.f/255.f,0.f/255.f), PxVec3(255.f/255.f,45.f/255.f,0.f/255.f),PxVec3(255.f/255.f,140.f/255.f,54.f/255.f),PxVec3(4.f/255.f,117.f/255.f,111.f/255.f)};
 
-	class Pyramid : public ConvexMesh
-	{
-	public:
-		Pyramid(PxTransform pose=PxTransform(PxIdentity), PxReal density=1.f) :
-			ConvexMesh(vector<PxVec3>(begin(pyramid_verts),end(pyramid_verts)), pose, density)
-		{
-		}
-	};
-
-	class PyramidStatic : public TriangleMesh
-	{
-	public:
-		PyramidStatic(PxTransform pose=PxTransform(PxIdentity)) :
-			TriangleMesh(vector<PxVec3>(begin(pyramid_verts),end(pyramid_verts)), vector<PxU32>(begin(pyramid_trigs),end(pyramid_trigs)), pose)
-		{
-		}
-	};
-
-	//=============================================================================================
 	struct FilterGroup
 	{
 		enum Enum
@@ -49,48 +29,10 @@ namespace PhysicsEngine
 			//add more if you need
 		};
 	};
-	//=============================================================================================
 
-	//An example class showing the use of springs (distance joints).
-	class Trampoline
-	{
-		vector<DistanceJoint*> springs;
-		StaticBox* bottom;
-		Box* top;
-
-	public:
-		Trampoline(PxReal x, PxReal z, const PxVec3& dimensions = PxVec3(5.f,5.f,5.f), PxReal stiffness = 100.0f, PxReal damping = 100.0f)
-		{
-			PxReal thickness = .1f;
-			bottom = new StaticBox(PxTransform(PxVec3(x, thickness, z)),PxVec3(dimensions.x, thickness, dimensions.z));
-			top = new Box(PxTransform(PxVec3(x, dimensions.y+thickness, z)),PxVec3(dimensions.x, thickness, dimensions.z));
-			springs.resize(4);
-			springs[0] = new DistanceJoint(bottom, PxTransform(PxVec3(dimensions.x, thickness, dimensions.z)), top, PxTransform(PxVec3(dimensions.x,-dimensions.y,dimensions.z)));
-			springs[1] = new DistanceJoint(bottom, PxTransform(PxVec3(dimensions.x, thickness, -dimensions.z)), top, PxTransform(PxVec3(dimensions.x,-dimensions.y,-dimensions.z)));
-			springs[2] = new DistanceJoint(bottom, PxTransform(PxVec3(-dimensions.x, thickness, dimensions.z)), top, PxTransform(PxVec3(-dimensions.x,-dimensions.y,dimensions.z)));
-			springs[3] = new DistanceJoint(bottom, PxTransform(PxVec3(-dimensions.x, thickness, -dimensions.z)), top, PxTransform(PxVec3(-dimensions.x,-dimensions.y,-dimensions.z)));
-			for (unsigned int i = 0; i < springs.size(); i++)
-			{
-				springs[i]->Stiffness(stiffness);
-				springs[i]->Damping(damping);
-				springs[i]->Get()->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
-			}
-		}
-
-		void AddToScene(Scene* scene)
-		{
-			scene->Add(bottom);
-			scene->Add(top);
-		}
-
-		~Trampoline()
-		{
-			for (unsigned int i = 0; i < springs.size(); i++)
-				delete springs[i];
-		}
-	};
-
+	// ================
 	// My Spring Walls
+	// ================
 	class SpringWalls
 	{
 		StaticBox* base;
@@ -144,11 +86,12 @@ namespace PhysicsEngine
 
 	};
 
+	// ===============
 	// Collison Class
+	// ===============
 	class MySimulationEventCallback : public PxSimulationEventCallback
 	{
 	public:
-		//an example variable that will be checked in the main simulation loop
 		bool trigger;
 		MySimulationEventCallback() : trigger(false) {}
 
@@ -203,7 +146,9 @@ namespace PhysicsEngine
 		virtual void onSleep(PxActor **actors, PxU32 count) {}
 	};
 
-	//A simple filter shader based on PxDefaultSimulationFilterShader - without group filtering
+	// ==============
+	// Filter Shader
+	// ==============
 	static PxFilterFlags CustomFilterShader( PxFilterObjectAttributes attributes0,	PxFilterData filterData0, PxFilterObjectAttributes attributes1,	PxFilterData filterData1, PxPairFlags& pairFlags,	const void* constantBlock,	PxU32 constantBlockSize)
 	{
 		// let triggers through
@@ -247,17 +192,16 @@ namespace PhysicsEngine
 		dSixJoint *d6Joint;
 		Goal* newGoal;
 		SpringWalls* SpringLeft, *SpringRight;
-		Obstacle* obstacle, * obstacletwo;
-
-		
+		Obstacle* obstacle1, * obstacle2;
+		ObstacleTwo* obstacle3, *obstacle4;
+	
 	public:
 		bool triggerBool = false;
-
-		//specify your custom filter shader here
-		//PxDefaultSimulationFilterShader by default
 		MyScene() : Scene() {};
 
-		///A custom scene class
+		// ======================
+		// Set the Visualisation
+		// ======================
 		void SetVisualisation()
 		{
 			px_scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
@@ -266,7 +210,9 @@ namespace PhysicsEngine
 			
 		}
 
-		//Custom scene initialisation
+		// ==========================
+		// Creating the Custom Scene
+		// ==========================
 		virtual void CustomInit() 
 		{
 			SetVisualisation();
@@ -297,49 +243,48 @@ namespace PhysicsEngine
 				// =================
 				plane = new Plane();
 				newGoal = new Goal();
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
 				planet = new StaticSphere(PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet2 = new StaticSphere(PxTransform(PxVec3(-550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
-				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
-				obstacle = new Obstacle(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
-				obstacletwo = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				obstacle1 = new Obstacle(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
+				obstacle2 = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				obstacle3 = new ObstacleTwo(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
+				obstacle4 = new ObstacleTwo(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
 				SpringRight = new SpringWalls();
 				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
-				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
-				//Indicator = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -40.0f)));
 				
 				// =============
 				// Setting Name
 				// =============
-				//Indicator->Name("Indicator");
 
 				// ==================
 				// Colouring Objects
 				// ==================
 				plane->Color(PxVec3(210.f/255.f,210.f/255.f,210.f/255.f));
 				newGoal->Color(color_palette[1]);
+				meteor->Color(color_palette[4]);
 				planet->Color(color_palette[3]);
 				planet2->Color(color_palette[3]);
 				planet3->Color(color_palette[3]);
-				meteor->Color(color_palette[4]);
-				obstacle->Color(color_palette[3]);
-				obstacletwo->Color(color_palette[3]);
-				borderBot->Color(color_palette[5]);
-				borderLeft->Color(color_palette[5]);
-				borderRight->Color(color_palette[5]);
-				borderTop->Color(color_palette[5]);
-				SpringLeft->Color(color_palette[5], color_palette[1]);
+				obstacle1->Color(color_palette[3]);
+				obstacle2->Color(color_palette[3]);
+				obstacle3->Color(color_palette[3]);
+				obstacle4->Color(color_palette[3]);
 				SpringRight->Color(color_palette[5], color_palette[1]);
-				//Indicator->Color(color_palette[5]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				borderBot->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
 				
 				// =======
 				// Joints
 				// =======
-				//indieJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 0.5f, -50.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), Indicator, PxTransform(PxVec3(0.0f, 0.5f, -10.0f)));
-				//indieJoint->SetLimits(PxReal(PxPi/2), PxReal(-PxPi/2));
 				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.0f, 10.0f)));
 				//planetJoint->DriveVelocity(PxReal(6.0f));
 				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
@@ -356,28 +301,28 @@ namespace PhysicsEngine
 				// ==========
 				SpringLeft->Material(bouncyMat);
 				SpringRight->Material(bouncyMat);
-				obstacle->Material(bouncyMat);
-				obstacletwo->Material(bouncyMat);
-				//Indicator->Material(SUPERFRICTION);
+				obstacle1->Material(bouncyMat);
+				obstacle2->Material(bouncyMat);
 
 				// =============
 				// Add to Scene
 				// =============
 				Add(plane);
 				newGoal->AddToScene(this);
-				Add(obstacle);
-				Add(obstacletwo);
 				Add(meteor);
-				//Add(Indicator);
 				Add(planet);
 				//Add(planet2);
-				//Add(planet3);
+				//Add(planet3);				
+				Add(obstacle1);
+				Add(obstacle2);
+				//Add(obstacle3);
+				//Add(obstacle4);			
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
 				Add(borderBot);
 				Add(borderTop);
 				Add(borderLeft);
 				Add(borderRight);
-				SpringRight->AddToScene(this);
-				SpringLeft->AddToScene(this);
 				break;
 			case 1:
 				triggerBool = false;
@@ -387,29 +332,133 @@ namespace PhysicsEngine
 				// =================
 				plane = new Plane();
 				newGoal = new Goal();
-				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
-				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
-				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
 				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(0.0f, 0.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
+				obstacle1 = new Obstacle(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
+				obstacle2 = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				obstacle3 = new ObstacleTwo(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
+				obstacle4 = new ObstacleTwo(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
 				SpringRight = new SpringWalls();
 				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
-				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 
+				// =============
+				// Setting Name
+				// =============
+
+				// ==================
+				// Colouring Objects
+				// ==================
 				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 				newGoal->Color(color_palette[1]);
+				meteor->Color(color_palette[4]);
 				planet->Color(color_palette[3]);
 				planet2->Color(color_palette[3]);
 				planet3->Color(color_palette[3]);
-				meteor->Color(color_palette[4]);
-				borderBot->Color(color_palette[5]);
-				borderLeft->Color(color_palette[5]);
-				borderRight->Color(color_palette[5]);
-				borderTop->Color(color_palette[5]);
-				SpringLeft->Color(color_palette[5], color_palette[1]);
+				obstacle1->Color(color_palette[3]);
+				obstacle2->Color(color_palette[3]);
+				obstacle3->Color(color_palette[3]);
+				obstacle4->Color(color_palette[3]);
 				SpringRight->Color(color_palette[5], color_palette[1]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				borderBot->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
+
+				// =======
+				// Joints
+				// =======
+				//planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.0f, 10.0f)));
+				//planetJoint->DriveVelocity(PxReal(6.0f));
+				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				d6Joint->SetMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+				d6Joint->SetMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
+
+				// =========
+				// Triggers
+				// =========
+				newGoal->SetTrigger();
+
+				// ==========
+				// Materials
+				// ==========
+				SpringLeft->Material(bouncyMat);
+				SpringRight->Material(bouncyMat);
+				obstacle1->Material(bouncyMat);
+				obstacle2->Material(bouncyMat);
+
+				// =============
+				// Add to Scene
+				// =============
+				Add(plane);
+				newGoal->AddToScene(this);
+				Add(meteor);
+				Add(planet);
+				Add(planet2);
+				//Add(planet3);				
+				//Add(obstacle1);
+				//Add(obstacle2);
+				//Add(obstacle3);
+				//Add(obstacle4);			
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
+				Add(borderBot);
+				Add(borderTop);
+				Add(borderLeft);
+				Add(borderRight);
+				break;
+			case 2:
+				triggerBool = false;
+
+				// =================
+				// Creating Objects
+				// =================
+				plane = new Plane();
+				newGoal = new Goal();
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(15.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(-15.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet3 = new DynamSphere(PxTransform(PxVec3(-550.0f, 1.0f, -15.0f)), PxReal(2.0f), PxReal(1.0f));
+				obstacle1 = new Obstacle(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
+				obstacle2 = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				obstacle3 = new ObstacleTwo(PxTransform(PxVec3(0.0f, 0.5f, 0.0f)));
+				obstacle4 = new ObstacleTwo(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				SpringRight = new SpringWalls();
+				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
+				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+
+				// =============
+				// Setting Name
+				// =============
+
+				// ==================
+				// Colouring Objects
+				// ==================
+				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+				newGoal->Color(color_palette[1]);
+				meteor->Color(color_palette[4]);
+				planet->Color(color_palette[3]);
+				planet2->Color(color_palette[3]);
+				planet3->Color(color_palette[3]);
+				obstacle1->Color(color_palette[3]);
+				obstacle2->Color(color_palette[3]);
+				obstacle3->Color(color_palette[3]);
+				obstacle4->Color(color_palette[3]);
+				SpringRight->Color(color_palette[5], color_palette[1]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				borderBot->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
 
 				// =======
 				// Joints
@@ -430,6 +479,8 @@ namespace PhysicsEngine
 				// ==========
 				SpringLeft->Material(bouncyMat);
 				SpringRight->Material(bouncyMat);
+				obstacle1->Material(bouncyMat);
+				obstacle2->Material(bouncyMat);
 
 				// =============
 				// Add to Scene
@@ -440,14 +491,18 @@ namespace PhysicsEngine
 				Add(planet);
 				Add(planet2);
 				//Add(planet3);
+				//Add(obstacle1);
+				//Add(obstacle2);
+				Add(obstacle3);
+				//Add(obstacle4);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
 				Add(borderBot);
 				Add(borderLeft);
 				Add(borderTop);
 				Add(borderRight);
-				SpringRight->AddToScene(this);
-				SpringLeft->AddToScene(this);
 				break;
-			case 2:
+			case 3:
 				triggerBool = false;
 
 				// =================
@@ -455,32 +510,133 @@ namespace PhysicsEngine
 				// =================
 				plane = new Plane();
 				newGoal = new Goal();
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
 				planet = new StaticSphere(PxTransform(PxVec3(500.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet2 = new StaticSphere(PxTransform(PxVec3(550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 10.0f)), PxReal(2.0f), PxReal(1.0f));
-				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				obstacle1 = new Obstacle(PxTransform(PxVec3(0.0f, 0.5f, 12.0f)));
+				obstacle2 = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, -5.0f)));
+				obstacle3 = new ObstacleTwo(PxTransform(PxVec3(0.0f, 0.5f, 0.0f)));
+				obstacle4 = new ObstacleTwo(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
 				SpringRight = new SpringWalls();
 				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
-				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+
+
+				// =============
+				// Setting Name
+				// =============
 
 				// ==================
 				// Colouring Objects
 				// ==================
 				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 				newGoal->Color(color_palette[1]);
+				meteor->Color(color_palette[4]);
 				planet->Color(color_palette[3]);
 				planet2->Color(color_palette[3]);
 				planet3->Color(color_palette[3]);
-				meteor->Color(color_palette[4]);
-				borderBot->Color(color_palette[5]);
-				borderLeft->Color(color_palette[5]);
-				borderRight->Color(color_palette[5]);
-				borderTop->Color(color_palette[5]);
-				SpringLeft->Color(color_palette[5], color_palette[1]);
+				obstacle1->Color(color_palette[3]);
+				obstacle2->Color(color_palette[3]);
+				obstacle3->Color(color_palette[3]);
+				obstacle4->Color(color_palette[3]);
 				SpringRight->Color(color_palette[5], color_palette[1]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				borderBot->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
+
+				// =======
+				// Joints
+				// =======
+				planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, -5.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 15.0f)));
+				planetJoint->DriveVelocity(PxReal(4.0f));
+				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				d6Joint->SetMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+				d6Joint->SetMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
+
+				// =========
+				// Triggers
+				// =========
+				newGoal->SetTrigger();
+
+				// ==========
+				// Materials
+				// ==========
+				SpringLeft->Material(bouncyMat);
+				SpringRight->Material(bouncyMat);
+
+				// =============
+				// Add to Scene
+				// =============
+				Add(plane);
+				newGoal->AddToScene(this);
+				Add(meteor);
+				//Add(planet);
+				//Add(planet2);
+				Add(planet3);
+				Add(obstacle1);
+				//Add(obstacle2);
+				//Add(obstacle3);
+				//Add(obstacle4);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
+				Add(borderBot);
+				Add(borderLeft);
+				Add(borderTop);
+				Add(borderRight);
+				break;
+			case 4:
+				triggerBool = false;
+
+				// =================
+				// Creating Objects
+				// =================
+				plane = new Plane();
+				newGoal = new Goal();
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(500.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 10.0f)), PxReal(2.0f), PxReal(1.0f));
+				obstacle1 = new Obstacle(PxTransform(PxVec3(15.0f, 0.5f, 15.0f)));
+				obstacle2 = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, 15.0f)));
+				obstacle3 = new ObstacleTwo(PxTransform(PxVec3(0.0f, 0.5f, 0.0f)));
+				obstacle4 = new ObstacleTwo(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				SpringRight = new SpringWalls();
+				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
+				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+
+
+				// =============
+				// Setting Name
+				// =============
+
+				// ==================
+				// Colouring Objects
+				// ==================
+				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+				newGoal->Color(color_palette[1]);
+				meteor->Color(color_palette[4]);
+				planet->Color(color_palette[3]);
+				planet2->Color(color_palette[3]);
+				planet3->Color(color_palette[3]);
+				obstacle1->Color(color_palette[3]);
+				obstacle2->Color(color_palette[3]);
+				obstacle3->Color(color_palette[3]);
+				obstacle4->Color(color_palette[3]);
+				SpringRight->Color(color_palette[5], color_palette[1]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				borderBot->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
 
 				// =======
 				// Joints
@@ -511,47 +667,64 @@ namespace PhysicsEngine
 				//Add(planet);
 				//Add(planet2);
 				Add(planet3);
+				Add(obstacle1);
+				Add(obstacle2);
+				Add(obstacle3);
+				//Add(obstacle4);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
 				Add(borderBot);
 				Add(borderLeft);
 				Add(borderTop);
 				Add(borderRight);
-				SpringRight->AddToScene(this);
-				SpringLeft->AddToScene(this);
 				break;
-			case 3:
+			case 5:
 				triggerBool = false;
 
 				// =================
 				// Creating Objects
 				// =================
 				plane = new Plane();
-				newGoal = new Goal(PxVec3(20.0f, 0.5f, 50.0f));
+				newGoal = new Goal(PxVec3(0.0f, 0.5f, 50.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(20.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
 				planet = new StaticSphere(PxTransform(PxVec3(40.0f, 1.0f, 25.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet2 = new StaticSphere(PxTransform(PxVec3(550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 10.0f)), PxReal(2.0f), PxReal(1.0f));
-				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				obstacle1 = new Obstacle(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
+				obstacle2 = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				obstacle3 = new ObstacleTwo(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
+				obstacle4 = new ObstacleTwo(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
 				SpringRight = new SpringWalls();
 				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
 				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
 				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
 				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
-				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+
+
+				// =============
+				// Setting Name
+				// =============
 
 				// ==================
 				// Colouring Objects
 				// ==================
 				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
 				newGoal->Color(color_palette[1]);
+				meteor->Color(color_palette[4]);
 				planet->Color(color_palette[3]);
 				planet2->Color(color_palette[3]);
 				planet3->Color(color_palette[3]);
-				meteor->Color(color_palette[4]);
-				borderBot->Color(color_palette[5]);
-				borderLeft->Color(color_palette[5]);
-				borderRight->Color(color_palette[5]);
-				borderTop->Color(color_palette[5]);
-				SpringLeft->Color(color_palette[5], color_palette[1]);
+				obstacle1->Color(color_palette[3]);
+				obstacle2->Color(color_palette[3]);
+				obstacle3->Color(color_palette[3]);
+				obstacle4->Color(color_palette[3]);
 				SpringRight->Color(color_palette[5], color_palette[1]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				borderBot->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
 
 				// =======
 				// Joints
@@ -582,12 +755,368 @@ namespace PhysicsEngine
 				Add(planet);
 				//Add(planet2);
 				Add(planet3);
+				Add(obstacle1);
+				//Add(obstacle2);
+				//Add(obstacle3);
+				//Add(obstacle4);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
 				Add(borderBot);
 				Add(borderLeft);
 				Add(borderTop);
 				Add(borderRight);
+				break;
+			case 6:
+				triggerBool = false;
+
+				// =================
+				// Creating Objects
+				// =================
+				plane = new Plane();
+				newGoal = new Goal(PxVec3(0.0f, 0.5f, 50.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 30.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 10.0f)), PxReal(2.0f), PxReal(1.0f));
+				obstacle1 = new Obstacle(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
+				obstacle2 = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				obstacle3 = new ObstacleTwo(PxTransform(PxVec3(15.0f, 0.5f, 0.0f)));
+				obstacle4 = new ObstacleTwo(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				SpringRight = new SpringWalls();
+				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
+				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+
+
+				// =============
+				// Setting Name
+				// =============
+
+				// ==================
+				// Colouring Objects
+				// ==================
+				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+				newGoal->Color(color_palette[1]);
+				meteor->Color(color_palette[4]);
+				planet->Color(color_palette[3]);
+				planet2->Color(color_palette[3]);
+				planet3->Color(color_palette[3]);
+				obstacle1->Color(color_palette[3]);
+				obstacle2->Color(color_palette[3]);
+				obstacle3->Color(color_palette[3]);
+				obstacle4->Color(color_palette[3]);
+				SpringRight->Color(color_palette[5], color_palette[1]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				borderBot->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
+
+				// =======
+				// Joints
+				// =======
+				planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 5.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 15.0f)));
+				planetJoint->DriveVelocity(PxReal(-3.0f));
+				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				d6Joint->SetMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+				d6Joint->SetMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
+
+				// =========
+				// Triggers
+				// =========
+				newGoal->SetTrigger();
+
+				// ==========
+				// Materials
+				// ==========
+				SpringLeft->Material(bouncyMat);
+				SpringRight->Material(bouncyMat);
+
+				// =============
+				// Add to Scene
+				// =============
+				Add(plane);
+				newGoal->AddToScene(this);
+				Add(meteor);
+				Add(planet);
+				//Add(planet2);
+				Add(planet3);
+				//Add(obstacle1);
+				//Add(obstacle2);
+				Add(obstacle3);
+				Add(obstacle4);
 				SpringRight->AddToScene(this);
 				SpringLeft->AddToScene(this);
+				Add(borderBot);
+				Add(borderLeft);
+				Add(borderTop);
+				Add(borderRight);
+				break;
+			case 7:
+				triggerBool = false;
+
+				// =================
+				// Creating Objects
+				// =================
+				plane = new Plane();
+				newGoal = new Goal(PxVec3(-20.0f, 0.5f, 50.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(550.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, 30.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 25.0f)), PxReal(2.0f), PxReal(1.0f));
+				obstacle1 = new Obstacle(PxTransform(PxVec3(0.0f, 0.5f, -15.0f)));
+				obstacle2 = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				obstacle3 = new ObstacleTwo(PxTransform(PxVec3(15.0f, 0.5f, -15.0f)));
+				obstacle4 = new ObstacleTwo(PxTransform(PxVec3(-15.0f, 0.5f, -15.0f)));
+				SpringRight = new SpringWalls();
+				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
+				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+
+
+				// =============
+				// Setting Name
+				// =============
+
+				// ==================
+				// Colouring Objects
+				// ==================
+				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+				newGoal->Color(color_palette[1]);
+				meteor->Color(color_palette[4]);
+				planet->Color(color_palette[3]);
+				planet2->Color(color_palette[3]);
+				planet3->Color(color_palette[3]);
+				obstacle1->Color(color_palette[3]);
+				obstacle2->Color(color_palette[3]);
+				obstacle3->Color(color_palette[3]);
+				obstacle4->Color(color_palette[3]);
+				SpringRight->Color(color_palette[5], color_palette[1]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				borderBot->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
+
+				// =======
+				// Joints
+				// =======
+				planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(-30.0f, 1.0f, 14.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 15.0f)));
+				planetJoint->DriveVelocity(PxReal(-3.0f));
+				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				d6Joint->SetMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+				d6Joint->SetMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
+
+				// =========
+				// Triggers
+				// =========
+				newGoal->SetTrigger();
+
+				// ==========
+				// Materials
+				// ==========
+				SpringLeft->Material(bouncyMat);
+				SpringRight->Material(bouncyMat);
+
+				// =============
+				// Add to Scene
+				// =============
+				Add(plane);
+				newGoal->AddToScene(this);
+				Add(meteor);
+				//Add(planet);
+				Add(planet2);
+				Add(planet3);
+				//Add(obstacle1);
+				//Add(obstacle2);
+				Add(obstacle3);
+				Add(obstacle4);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
+				Add(borderBot);
+				Add(borderLeft);
+				Add(borderTop);
+				Add(borderRight);
+				break;
+			case 8:
+				triggerBool = false;
+
+				// =================
+				// Creating Objects
+				// =================
+				plane = new Plane();
+				newGoal = new Goal(PxVec3(0.0f, 0.5f, 50.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 25.0f)), PxReal(2.0f), PxReal(1.0f));
+				obstacle1 = new Obstacle(PxTransform(PxVec3(0.0f, 0.5f, -15.0f)));
+				obstacle2 = new Obstacle(PxTransform(PxVec3(-15.0f, 0.5f, 0.0f)));
+				obstacle3 = new ObstacleTwo(PxTransform(PxVec3(5.0f, 0.5f, -10.0f)));
+				obstacle4 = new ObstacleTwo(PxTransform(PxVec3(-5.0f, 0.5f, 10.0f)));
+				SpringRight = new SpringWalls();
+				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
+				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+
+
+				// =============
+				// Setting Name
+				// =============
+
+				// ==================
+				// Colouring Objects
+				// ==================
+				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+				newGoal->Color(color_palette[1]);
+				meteor->Color(color_palette[4]);
+				planet->Color(color_palette[3]);
+				planet2->Color(color_palette[3]);
+				planet3->Color(color_palette[3]);
+				obstacle1->Color(color_palette[3]);
+				obstacle2->Color(color_palette[3]);
+				obstacle3->Color(color_palette[3]);
+				obstacle4->Color(color_palette[3]);
+				SpringRight->Color(color_palette[5], color_palette[1]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				borderBot->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
+
+				// =======
+				// Joints
+				// =======
+				planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, 0.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 5.0f)));
+				planetJoint->DriveVelocity(PxReal(-3.0f));
+				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				d6Joint->SetMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+				d6Joint->SetMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
+
+				// =========
+				// Triggers
+				// =========
+				newGoal->SetTrigger();
+
+				// ==========
+				// Materials
+				// ==========
+				SpringLeft->Material(bouncyMat);
+				SpringRight->Material(bouncyMat);
+
+				// =============
+				// Add to Scene
+				// =============
+				Add(plane);
+				newGoal->AddToScene(this);
+				Add(meteor);
+				Add(planet);
+				Add(planet2);
+				Add(planet3);
+				//Add(obstacle1);
+				//Add(obstacle2);
+				Add(obstacle3);
+				Add(obstacle4);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
+				Add(borderBot);
+				Add(borderLeft);
+				Add(borderTop);
+				Add(borderRight);
+				break;
+			case 9:
+				triggerBool = false;
+
+				// =================
+				// Creating Objects
+				// =================
+				plane = new Plane();
+				newGoal = new Goal(PxVec3(0.0f, 0.5f, 50.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(20.0f, 1.0f, 35.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet2 = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, 35.0f)), PxReal(2.0f), PxReal(1.0f));
+				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 25.0f)), PxReal(2.0f), PxReal(1.0f));
+				obstacle1 = new Obstacle(PxTransform(PxVec3(12.0f, 0.5f, 0.0f)));
+				obstacle2 = new Obstacle(PxTransform(PxVec3(-12.0f, 0.5f, 0.0f)));
+				obstacle3 = new ObstacleTwo(PxTransform(PxVec3(0.0f, 0.5f, -12.0f)));
+				obstacle4 = new ObstacleTwo(PxTransform(PxVec3(0.0f, 0.5f, 12.0f)));
+				SpringRight = new SpringWalls();
+				SpringLeft = new SpringWalls(-4.0f, PxVec3(59.0f, 0.5f, 0.0f));
+				borderBot = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, -59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderTop = new Rectangle(PxTransform(PxVec3(0.0f, 0.5f, 59.0f)), PxVec3(59.0f, 1.0f, 5.0f), PxReal(5.0f));
+				borderRight = new Rectangle(PxTransform(PxVec3(-65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+				borderLeft = new Rectangle(PxTransform(PxVec3(65.0f, 0.5f, 0.0f)), PxVec3(5.0f, 1.0f, 54.0f), PxReal(5.0f));
+
+
+				// =============
+				// Setting Name
+				// =============
+
+				// ==================
+				// Colouring Objects
+				// ==================
+				plane->Color(PxVec3(210.f / 255.f, 210.f / 255.f, 210.f / 255.f));
+				newGoal->Color(color_palette[1]);
+				meteor->Color(color_palette[4]);
+				planet->Color(color_palette[3]);
+				planet2->Color(color_palette[3]);
+				planet3->Color(color_palette[3]);
+				obstacle1->Color(color_palette[3]);
+				obstacle2->Color(color_palette[3]);
+				obstacle3->Color(color_palette[3]);
+				obstacle4->Color(color_palette[3]);
+				SpringRight->Color(color_palette[5], color_palette[1]);
+				SpringLeft->Color(color_palette[5], color_palette[1]);
+				borderBot->Color(color_palette[5]);
+				borderTop->Color(color_palette[5]);
+				borderRight->Color(color_palette[5]);
+				borderLeft->Color(color_palette[5]);
+
+				// =======
+				// Joints
+				// =======
+				planetJoint = new RevoluteJoint(NULL, PxTransform(PxVec3(0.0f, 1.0f, -19.0f), PxQuat(PxPi / 2, PxVec3(0.0f, 0.0f, 1.0f))), planet3, PxTransform(PxVec3(0.0f, 1.5f, 10.0f)));
+				planetJoint->DriveVelocity(PxReal(-3.0f));
+				d6Joint = new dSixJoint(NULL, PxTransform(PxVec3(0.0f, 0.0f, 0.0f)), meteor, PxTransform(PxVec3(0.0f, 0.5f, 50.0f)));
+				d6Joint->SetMotion(PxD6Axis::eX, PxD6Motion::eFREE);
+				d6Joint->SetMotion(PxD6Axis::eZ, PxD6Motion::eFREE);
+
+				// =========
+				// Triggers
+				// =========
+				newGoal->SetTrigger();
+
+				// ==========
+				// Materials
+				// ==========
+				SpringLeft->Material(bouncyMat);
+				SpringRight->Material(bouncyMat);
+
+				// =============
+				// Add to Scene
+				// =============
+				Add(plane);
+				newGoal->AddToScene(this);
+				Add(meteor);
+				Add(planet);
+				Add(planet2);
+				Add(planet3);
+				Add(obstacle1);
+				Add(obstacle2);
+				//Add(obstacle3);
+				Add(obstacle4);
+				SpringRight->AddToScene(this);
+				SpringLeft->AddToScene(this);
+				Add(borderBot);
+				Add(borderLeft);
+				Add(borderTop);
+				Add(borderRight);
 				break;
 			default:
 				break;
@@ -664,18 +1193,24 @@ namespace PhysicsEngine
 			*/
 		}
 
-		//Custom udpate function
+		// =======================
+		// Custom udpate function
+		// =======================
 		virtual void CustomUpdate() 
 		{
 			AddGravity(planet, meteor);
 			AddGravity(planet2, meteor);
 			AddGravityDynamic(planet3, meteor);
+
 			if(my_callback->trigger)
 			{
 				triggerBool = true;
 			}
 		}
 
+		// =======================
+		// Custom udpate function
+		// =======================
 		void getDistance(DynamSphere* indie, DynamSphere* meteor)
 		{
 			PxTransform planetPose = ((PxRigidBody*)indie->Get())->getGlobalPose();
@@ -689,10 +1224,11 @@ namespace PhysicsEngine
 			PxReal x = PxAbs(px) - PxAbs(mx);
 			PxReal y = PxAbs(pz) - PxAbs(mz);
 			PxReal z = PxSqrt((x*x) + (y*y));
-			cout << z << endl;
 		}
 
-		///Gravity for an object
+		// =======================
+		// Custom udpate function
+		// =======================
 		void AddGravity(StaticSphere* planet, DynamSphere* satellite)
 		{
 			PxTransform planetPose = ((PxRigidBody*)planet->Get())->getGlobalPose();
@@ -728,6 +1264,9 @@ namespace PhysicsEngine
 			}
 		}
 
+		// =======================
+		// Custom udpate function
+		// =======================
 		void AddGravityDynamic(DynamSphere* planet, DynamSphere* satellite)
 		{
 			PxTransform planetPose = ((PxRigidBody*)planet->Get())->getGlobalPose();

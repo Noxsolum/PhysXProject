@@ -107,8 +107,8 @@ namespace PhysicsEngine
 		Goal(const PxVec3 pose = PxVec3(0.0f, 0.5f, 50.0f), const PxVec3& dimensionsBack = PxVec3(4.0f, 0.5f, 0.25f), const PxVec3& dimensionsSides = PxVec3(0.25, 0.5f, 2.0f))
 		{
 			back = new Rectangle(PxTransform(PxVec3(pose.x, pose.y, pose.z)), PxVec3(dimensionsBack), PxReal(1.0f));
-			left = new Rectangle(PxTransform(PxVec3(pose.x + 4.0f, pose.y, pose.z - 1.75)), PxVec3(dimensionsSides), PxReal(1.0f));
-			right = new Rectangle(PxTransform(PxVec3(pose.x - 4.0f, pose.y, pose.z - 1.75)), PxVec3(dimensionsSides), PxReal(1.0f));
+			left = new Rectangle(PxTransform(PxVec3(pose.x + 4.2f, pose.y, pose.z - 1.75)), PxVec3(dimensionsSides), PxReal(1.0f));
+			right = new Rectangle(PxTransform(PxVec3(pose.x - 4.2f, pose.y, pose.z - 1.75)), PxVec3(dimensionsSides), PxReal(1.0f));
 		}
 
 		void AddToScene(Scene* scene)
@@ -145,6 +145,23 @@ namespace PhysicsEngine
 			GetShape(1)->setLocalPose(PxTransform(PxVec3(pose.p.x - 7.0f, pose.p.y, pose.p.z + 7.0f)));
 			GetShape(2)->setLocalPose(PxTransform(PxVec3(pose.p.x + 7.0f, pose.p.y, pose.p.z - 7.0f)));
 			GetShape(3)->setLocalPose(PxTransform(PxVec3(pose.p.x - 7.0f, pose.p.y, pose.p.z - 7.0f)));
+		}
+	};
+
+	class ObstacleTwo : public StaticActor
+	{
+		StaticBox* topLeft, *topRight, *botLeft, *botRight;
+	public:
+		ObstacleTwo(const PxTransform& pose = PxTransform(PxIdentity), PxVec3 dimensions = PxVec3(2.0f, 2.0f, 2.0f), PxReal density = 1.0f) : StaticActor(pose)
+		{
+			CreateShape(PxBoxGeometry(dimensions), density);
+			CreateShape(PxBoxGeometry(dimensions), density);
+			CreateShape(PxBoxGeometry(dimensions), density);
+			CreateShape(PxBoxGeometry(dimensions), density);
+			GetShape(0)->setLocalPose(PxTransform(PxVec3(pose.p.x + 9.9f, pose.p.y, pose.p.z)));
+			GetShape(1)->setLocalPose(PxTransform(PxVec3(pose.p.x, pose.p.y, pose.p.z + 9.9f)));
+			GetShape(2)->setLocalPose(PxTransform(PxVec3(pose.p.x, pose.p.y, pose.p.z - 9.9f)));
+			GetShape(3)->setLocalPose(PxTransform(PxVec3(pose.p.x - 9.9f, pose.p.y, pose.p.z)));
 		}
 	};
 
