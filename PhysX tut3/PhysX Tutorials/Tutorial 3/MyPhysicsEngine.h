@@ -19,6 +19,9 @@ namespace PhysicsEngine
 	// ========
 	static const PxVec3 color_palette[] = {PxVec3(46.f/255.f,9.f/255.f,39.f/255.f),PxVec3(217.f/255.f,0.f/255.f,0.f/255.f), PxVec3(255.f/255.f,45.f/255.f,0.f/255.f),PxVec3(255.f/255.f,140.f/255.f,54.f/255.f),PxVec3(4.f/255.f,117.f/255.f,111.f/255.f)};
 
+	// =============
+	// Filter Group
+	// =============
 	struct FilterGroup
 	{
 		enum Enum
@@ -179,7 +182,9 @@ namespace PhysicsEngine
 		return PxFilterFlags();
 	};
 
-	///Custom scene class
+	// ===================
+	// Custom Scene Class
+	// ===================
 	class MyScene : public Scene
 	{
 		Plane* plane;
@@ -1226,9 +1231,9 @@ namespace PhysicsEngine
 			PxReal z = PxSqrt((x*x) + (y*y));
 		}
 
-		// =======================
-		// Custom udpate function
-		// =======================
+		// =============================
+		// Add Gravity to Static Actors
+		// =============================
 		void AddGravity(StaticSphere* planet, DynamSphere* satellite)
 		{
 			PxTransform planetPose = ((PxRigidBody*)planet->Get())->getGlobalPose();
@@ -1264,9 +1269,9 @@ namespace PhysicsEngine
 			}
 		}
 
-		// =======================
-		// Custom udpate function
-		// =======================
+		// ==============================
+		// Add Gravity to Dynamic Actors
+		// ==============================
 		void AddGravityDynamic(DynamSphere* planet, DynamSphere* satellite)
 		{
 			PxTransform planetPose = ((PxRigidBody*)planet->Get())->getGlobalPose();
@@ -1300,19 +1305,6 @@ namespace PhysicsEngine
 					((PxRigidBody*)satellite->Get())->addForce(PxVec3(0.0, 0.0, -1.0) * 100);
 				}
 			}
-		}
-
-
-		/// An example use of key release handling
-		void ExampleKeyReleaseHandler()
-		{
-			cerr << "I am realeased!" << endl;
-		}
-
-		/// An example use of key presse handling
-		void ExampleKeyPressHandler()
-		{
-			cerr << "I am pressed!" << endl;
 		}
 	};
 }

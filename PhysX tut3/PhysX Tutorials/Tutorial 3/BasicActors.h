@@ -6,7 +6,9 @@
 
 namespace PhysicsEngine
 {
-	///Plane class
+	// =============
+	// Plane Object
+	// =============
 	class Plane : public StaticActor
 	{
 	public:
@@ -18,6 +20,9 @@ namespace PhysicsEngine
 		}
 	};
 
+	// =====================
+	// Static Sphere Object
+	// =====================
 	class StaticSphere : public StaticActor
 	{
 	public:
@@ -32,7 +37,9 @@ namespace PhysicsEngine
 		}
 	};
 
-	///Sphere class
+	// ======================
+	// Dynamic Sphere Object
+	// ======================
 	class DynamSphere : public DynamicActor
 	{
 	public:
@@ -47,7 +54,9 @@ namespace PhysicsEngine
 		}
 	};
 
-	///Box class
+	// ===================
+	// Dynamic Box Object
+	// ===================
 	class Box : public DynamicActor
 	{
 	public:
@@ -62,6 +71,9 @@ namespace PhysicsEngine
 		}
 	};
 
+	// ==================
+	// Static Box Object
+	// ==================
 	class StaticBox : public StaticActor
 	{
 	public:
@@ -76,6 +88,9 @@ namespace PhysicsEngine
 		}
 	};
 
+	// ========================
+	// Static Rectangle Object
+	// ========================
 	class Rectangle : public StaticActor
 	{
 	public:
@@ -90,16 +105,9 @@ namespace PhysicsEngine
 		}
 	};
 
-	class Capsule : public DynamicActor
-	{
-	public:
-		Capsule(const PxTransform& pose=PxTransform(PxIdentity), PxVec2 dimensions=PxVec2(1.f,1.f), PxReal density=1.f) 
-			: DynamicActor(pose)
-		{
-			CreateShape(PxCapsuleGeometry(dimensions.x, dimensions.y), density);
-		}
-	};
-
+	// ===============
+	// Trigger Object
+	// ===============
 	class Goal
 	{
 		Rectangle* back, *left, *right;
@@ -131,6 +139,9 @@ namespace PhysicsEngine
 		}
 	};
 
+	// ====================
+	// Compound Object One
+	// ====================
 	class Obstacle : public StaticActor
 	{
 		StaticBox* topLeft, *topRight, *botLeft, *botRight;
@@ -148,6 +159,9 @@ namespace PhysicsEngine
 		}
 	};
 
+	// ====================
+	// Compound Object Two
+	// ====================
 	class ObstacleTwo : public StaticActor
 	{
 		StaticBox* topLeft, *topRight, *botLeft, *botRight;
@@ -165,72 +179,9 @@ namespace PhysicsEngine
 		}
 	};
 
-	///The ConvexMesh class
-	class ConvexMesh : public DynamicActor
-	{
-	public:
-		//constructor
-		ConvexMesh(const std::vector<PxVec3>& verts, const PxTransform& pose=PxTransform(PxIdentity), PxReal density=1.f)
-			: DynamicActor(pose)
-		{
-			PxConvexMeshDesc mesh_desc;
-			mesh_desc.points.count = (PxU32)verts.size();
-			mesh_desc.points.stride = sizeof(PxVec3);
-			mesh_desc.points.data = &verts.front();
-			mesh_desc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
-			mesh_desc.vertexLimit = 256;
-
-			CreateShape(PxConvexMeshGeometry(CookMesh(mesh_desc)), density);
-		}
-
-		//mesh cooking (preparation)
-		PxConvexMesh* CookMesh(const PxConvexMeshDesc& mesh_desc)
-		{
-			PxDefaultMemoryOutputStream stream;
-
-			if(!GetCooking()->cookConvexMesh(mesh_desc, stream))
-				throw new Exception("ConvexMesh::CookMesh, cooking failed.");
-
-			PxDefaultMemoryInputData input(stream.getData(), stream.getSize());
-
-			return GetPhysics()->createConvexMesh(input);
-		}
-	};
-
-	///The TriangleMesh class
-	class TriangleMesh : public StaticActor
-	{
-	public:
-		//constructor
-		TriangleMesh(const std::vector<PxVec3>& verts, const std::vector<PxU32>& trigs, const PxTransform& pose=PxTransform(PxIdentity))
-			: StaticActor(pose)
-		{
-			PxTriangleMeshDesc mesh_desc;
-			mesh_desc.points.count = (PxU32)verts.size();
-			mesh_desc.points.stride = sizeof(PxVec3);
-			mesh_desc.points.data = &verts.front();
-			mesh_desc.triangles.count = (PxU32)trigs.size();
-			mesh_desc.triangles.stride = 3*sizeof(PxU32);
-			mesh_desc.triangles.data = &trigs.front();
-
-			CreateShape(PxTriangleMeshGeometry(CookMesh(mesh_desc)));
-		}
-
-		//mesh cooking (preparation)
-		PxTriangleMesh* CookMesh(const PxTriangleMeshDesc& mesh_desc)
-		{
-			PxDefaultMemoryOutputStream stream;
-
-			if(!GetCooking()->cookTriangleMesh(mesh_desc, stream))
-				throw new Exception("TriangleMesh::CookMesh, cooking failed.");
-
-			PxDefaultMemoryInputData input(stream.getData(), stream.getSize());
-
-			return GetPhysics()->createTriangleMesh(input);
-		}
-	};
-
-	//Distance joint with the springs switched on
+	// ============================
+	// Distance Joint with Springs
+	// ============================
 	class DistanceJoint : public Joint
 	{
 	public:
@@ -268,7 +219,9 @@ namespace PhysicsEngine
 		}
 	};
 
-	///Revolute Joint
+	// ===============
+	// Revolute Joint
+	// ===============
 	class RevoluteJoint : public Joint
 	{
 	public:
@@ -313,6 +266,9 @@ namespace PhysicsEngine
 		}
 	};
 
+	// ===========
+	// My D6Joint
+	// ===========
 	class dSixJoint : public Joint
 	{
 	public:
