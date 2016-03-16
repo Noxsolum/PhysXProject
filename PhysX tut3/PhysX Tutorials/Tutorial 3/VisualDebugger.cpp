@@ -22,7 +22,8 @@ namespace VisualDebugger
 		HELP = 1,
 		PAUSE = 2,
 		WINSCREEN = 3,
-		INDICATOR = 4
+		INDICATOR = 4,
+		NEXTLEVEL = 5
 	};
 
 	//function declarations
@@ -54,7 +55,6 @@ namespace VisualDebugger
 	int direction = leftToRight * 10;
 	bool disableMove = true;
 	int velocity = 0;
-	static const PxVec3 Indicator[] = { PxVec3(9.2f, 0.5f, 3.9f), PxVec3(9.08f, 0.5f, 4.18f), PxVec3(8.91f, 0.5f, 4.54f), PxVec3(8.72f, 0.5f, 4.89f), PxVec3(8.52f, 0.5f, 5.23f), PxVec3(8.41f, 0.5f, 5.4f), PxVec3(8.08f, 0.5f, 5.9f), PxVec3(7.83f, 0.5f, 6.22f), PxVec3(7.58f, 0.5f, 6.52f), PxVec3(7.31f, 0.5f, 6.82f), PxVec3(7.1f, 0.5f, 7.04), PxVec3(6.52f, 0.5f, 7.58f), PxVec3(5.89f, 0.5f, 8.08f), PxVec3(5.23f, 0.5f, 8.53f), PxVec3(4.53f, 0.5f, 8.92f), PxVec3(3.8f, 0.5f, 9.25f), PxVec3(3.05f, 0.5f, 9.52f), PxVec3(2.38f, 0.5f, 9.71f), PxVec3(1.59f, 0.5f, 9.87f), PxVec3(0.8f, 0.5f, 9.97f) };
 	std::string velocityOut = "Velocity: " + std::to_string(velocity);
 	std::string directionOut = "Direction: " + std::to_string(direction);
 
@@ -119,14 +119,14 @@ namespace VisualDebugger
 		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, "");
-		hud.AddLine(HELP, "                                                               Instructions!");
-		hud.AddLine(HELP, "                                           Right Arrow, Left Arrow - Aim Left or Right!");
-		hud.AddLine(HELP, "                                        Top Arrow, Bottom Arrow - Add or Remove Velocity!");
-		hud.AddLine(HELP, "                Hold Space once you have selected the direction and amount of velocity you want!");
-		hud.AddLine(HELP, "                                                     Press F11 to reset the ball!");
+		hud.AddLine(HELP, "                                                        Instructions!");		
+		hud.AddLine(HELP, "                              Add Velocity: Top Arrow / Remove Velocity: Bottom Arrow");
+		hud.AddLine(HELP, "         Postive Direction: Left - Left Arrow / Negative Direction: Right - Right Arrow");
+		hud.AddLine(HELP, "       Hold Space once you have selected the direction and amount of velocity you want!");
+		hud.AddLine(HELP, "                                              Press F11 to reset the ball!");
 		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, "");
-		hud.AddLine(HELP, "                                                                 F5 - To Begin");
+		hud.AddLine(HELP, "                                                         F5 - To Begin!");
 
 		// =============
 		// Pause Screen
@@ -178,19 +178,33 @@ namespace VisualDebugger
 		hud.AddLine(INDICATOR, directionOut);
 
 		// ===========
+		// Next Level 
+		// ===========
+		hud.AddLine(NEXTLEVEL, "");
+		hud.AddLine(NEXTLEVEL, "");
+		hud.AddLine(NEXTLEVEL, "");
+		hud.AddLine(NEXTLEVEL, "          Level Complete!");
+		hud.AddLine(NEXTLEVEL, "     Press F4 to Continue!");
+
+		// ===========
 		// Win Screen
 		// ===========
 		hud.AddLine(WINSCREEN, "");
 		hud.AddLine(WINSCREEN, "");
 		hud.AddLine(WINSCREEN, "");
-		hud.AddLine(WINSCREEN, "                YOU WIN!");
-		hud.AddLine(WINSCREEN, "     Press F12 to continue!");
+		hud.AddLine(WINSCREEN, "");
+		hud.AddLine(WINSCREEN, "");
+		hud.AddLine(WINSCREEN, "");
+		hud.AddLine(WINSCREEN, "");
+		hud.AddLine(WINSCREEN, "                You Win!!");
+		hud.AddLine(WINSCREEN, "              Well Done!!");
 
 		// ==========
 		// Font Size
 		// ==========
-		hud.FontSize(0.018f);
-		hud.FontSize(0.06f, 3);
+		hud.FontSize(0.020f);
+		hud.FontSize(0.06f, NEXTLEVEL);
+		hud.FontSize(0.06f, WINSCREEN);
 		hud.FontSize(0.025f, 4);
 
 		// ===========
@@ -233,7 +247,11 @@ namespace VisualDebugger
 			{
 				hud.ActiveScreen(PAUSE);
 			}
-			else if (scene->triggerBool)
+			else if (scene->triggerBool && scene->Winner == false)
+			{
+				hud.ActiveScreen(NEXTLEVEL);
+			}
+			else if (scene->triggerBool && scene->Winner == true)
 			{
 				hud.ActiveScreen(WINSCREEN);
 			}
@@ -364,8 +382,6 @@ namespace VisualDebugger
 	// ====================
 	void KeySpecial(int key, int x, int y)
 	{
-		bool AddOne = true;
-
 		switch (key)
 		{
 		// ============================
@@ -412,7 +428,7 @@ namespace VisualDebugger
 		// ==================
 		// Refresh the Scene
 		// ==================
-		case GLUT_KEY_F12:
+		case GLUT_KEY_F4:
 			//reset scene
 			scene->Reset();
 			leftToRight = 0;

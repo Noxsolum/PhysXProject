@@ -286,6 +286,11 @@ namespace PhysicsEngine
 		return px_scene; 
 	}
 
+	void Scene::Refresh()
+	{
+
+	}
+
 	void Scene::Reset()
 	{
 		px_scene->release();

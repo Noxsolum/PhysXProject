@@ -136,6 +136,9 @@ namespace PhysicsEngine
 		///Get the PxScene object
 		PxScene* Get();
 
+		///Refresh the scene
+		void Refresh();
+
 		///Reset the scene
 		void Reset();
 

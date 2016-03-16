@@ -12,7 +12,7 @@ namespace PhysicsEngine
 	// ==============
 	// Level Counter
 	// ==============
-	static int LevelCount = 9;
+	static int LevelCount = 0;
 
 	// ========
 	// Colours
@@ -149,9 +149,9 @@ namespace PhysicsEngine
 		virtual void onSleep(PxActor **actors, PxU32 count) {}
 	};
 
-	// ==============
-	// Filter Shader
-	// ==============
+	// ======================================================================================================
+	// Filter Shader - If I put a filter, it would bounce in the goal causing my Level boolean to mess up!!!
+	// ======================================================================================================
 	static PxFilterFlags CustomFilterShader( PxFilterObjectAttributes attributes0,	PxFilterData filterData0, PxFilterObjectAttributes attributes1,	PxFilterData filterData1, PxPairFlags& pairFlags,	const void* constantBlock,	PxU32 constantBlockSize)
 	{
 		// let triggers through
@@ -162,21 +162,11 @@ namespace PhysicsEngine
 		}
 
 		pairFlags = PxPairFlag::eCONTACT_DEFAULT;
-		//enable continous collision detection
-//		pairFlags |= PxPairFlag::eCCD_LINEAR;
-		
-		
-		//customise collision filtering here
-		//e.g.
 
-		// trigger the contact callback for pairs (A,B) where 
-		// the filtermask of A contains the ID of B and vice versa.
 		if((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
 		{
-			//trigger onContact callback for this pair of objects
 			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
 			pairFlags |= PxPairFlag::eNOTIFY_TOUCH_LOST;
-//			pairFlags |= PxPairFlag::eNOTIFY_CONTACT_POINTS;
 		}
 
 		return PxFilterFlags();
@@ -202,6 +192,7 @@ namespace PhysicsEngine
 	
 	public:
 		bool triggerBool = false;
+		bool Winner = false;
 		MyScene() : Scene() {};
 
 		// ======================
@@ -690,8 +681,8 @@ namespace PhysicsEngine
 				// Creating Objects
 				// =================
 				plane = new Plane();
-				newGoal = new Goal(PxVec3(0.0f, 0.5f, 50.0f));
-				meteor = new DynamSphere(PxTransform(PxVec3(20.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				newGoal = new Goal(PxVec3(25.0f, 0.5f, 50.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
 				planet = new StaticSphere(PxTransform(PxVec3(40.0f, 1.0f, 25.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet2 = new StaticSphere(PxTransform(PxVec3(550.0f, 1.0f, -20.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 10.0f)), PxReal(2.0f), PxReal(1.0f));
@@ -867,8 +858,8 @@ namespace PhysicsEngine
 				// =================
 				plane = new Plane();
 				newGoal = new Goal(PxVec3(-20.0f, 0.5f, 50.0f));
-				meteor = new DynamSphere(PxTransform(PxVec3(550.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
-				planet = new StaticSphere(PxTransform(PxVec3(-20.0f, 1.0f, 30.0f)), PxReal(2.0f), PxReal(1.0f));
+				meteor = new DynamSphere(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)), PxReal(1.0f), PxReal(1.0f));
+				planet = new StaticSphere(PxTransform(PxVec3(550.0f, 1.0f, 30.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet2 = new StaticSphere(PxTransform(PxVec3(0.0f, 1.0f, 0.0f)), PxReal(2.0f), PxReal(1.0f));
 				planet3 = new DynamSphere(PxTransform(PxVec3(0.0f, 1.5f, 25.0f)), PxReal(2.0f), PxReal(1.0f));
 				obstacle1 = new Obstacle(PxTransform(PxVec3(0.0f, 0.5f, -15.0f)));
@@ -1037,6 +1028,7 @@ namespace PhysicsEngine
 				break;
 			case 9:
 				triggerBool = false;
+				Winner = true;
 
 				// =================
 				// Creating Objects
@@ -1305,6 +1297,18 @@ namespace PhysicsEngine
 					((PxRigidBody*)satellite->Get())->addForce(PxVec3(0.0, 0.0, -1.0) * 100);
 				}
 			}
+		}
+
+		/// An example use of key release handling
+		void ExampleKeyReleaseHandler()
+		{
+			cerr << "I am realeased!" << endl;
+		}
+
+		/// An example use of key presse handling
+		void ExampleKeyPressHandler()
+		{
+			cerr << "I am pressed!" << endl;
 		}
 	};
 }
