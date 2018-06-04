@@ -147,6 +147,7 @@ namespace PhysicsEngine
 		virtual void onConstraintBreak(PxConstraintInfo *constraints, PxU32 count) {}
 		virtual void onWake(PxActor **actors, PxU32 count) {}
 		virtual void onSleep(PxActor **actors, PxU32 count) {}
+		virtual void onAdvance(const PxRigidBody*const* bodyBuffer, const PxTransform* poseBuffer, const PxU32 count) {}
 	};
 
 	// ======================================================================================================

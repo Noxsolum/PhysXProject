@@ -291,11 +291,11 @@ namespace VisualDebugger
 			PxVec3 shadow_color = default_color*0.9;
 			for(PxU32 i=0;i<numActors;i++)
 			{
-				if (actors[i]->isCloth())
+				if (actors[i]->is<PxCloth>())
 				{
 					RenderCloth((PxCloth*)actors[i]);
 				}
-				else if (actors[i]->isRigidActor())
+				else if (actors[i]->is<PxRigidActor>())
 				{
 					PxRigidActor* rigid_actor = (PxRigidActor*)actors[i];
 					std::vector<PxShape*> shapes(rigid_actor->getNbShapes());

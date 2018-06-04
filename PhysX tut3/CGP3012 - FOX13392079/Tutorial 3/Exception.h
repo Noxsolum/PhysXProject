@@ -1,19 +1,20 @@
 #pragma once
 
 #include <string>
+using namespace std;
 
-///Generic exception.
+//Generic exception.
 
-///
-///Inherit from this class to implement your own exceptions.
-///
+// #################################################################
+// ### Inherit from this class to implement your own exceptions. ###
+// #################################################################
 class Exception
 {
-	std::string message;
+	string message;
 
 public:
-	Exception(const std::string s) : message(s) {};
+	Exception(const string s) : message(s) {};
 
-	virtual const std::string& what() const throw() { return message; }
+	virtual const string& what() const throw() { return message; }
 };
 

@@ -1,4 +1,5 @@
 #include "PhysicsEngine.h"
+#include "cooking/PxCooking.h"
 #include <iostream>
 
 namespace PhysicsEngine
@@ -12,46 +13,54 @@ namespace PhysicsEngine
 
 	//PhysX objects
 	PxFoundation* foundation = 0;
-	debugger::comm::PvdConnection* vd_connection = 0;
 	PxPhysics* physics = 0;
 	PxCooking* cooking = 0;
+	PxPvd* pvd = 0;
 
 	///PhysX functions
 	void PxInit()
 	{
 		//foundation
 		if (!foundation)
-			foundation = PxCreateFoundation(PX_PHYSICS_VERSION, gDefaultAllocatorCallback, gDefaultErrorCallback);
+			foundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gDefaultAllocatorCallback, gDefaultErrorCallback);
 
 		if(!foundation)
 			throw new Exception("PhysicsEngine::PxInit, Could not create the PhysX SDK foundation.");
 
 		//physics
 		if (!physics)
-			physics = PxCreatePhysics(PX_PHYSICS_VERSION, *foundation, PxTolerancesScale());
+			physics = PxCreatePhysics(PX_PHYSICS_VERSION, *foundation, PxTolerancesScale(), true, pvd);
 
-		if(!physics)
+		if (!physics)
 			throw new Exception("PhysicsEngine::PxInit, Could not initialise the PhysX SDK.");
 
+		// Creating a Cooking object.
 		if (!cooking)
 			cooking = PxCreateCooking(PX_PHYSICS_VERSION, *foundation, PxCookingParams(PxTolerancesScale()));
 
 		if(!cooking)
 			throw new Exception("PhysicsEngine::PxInit, Could not initialise the cooking component.");
 
-		//visual debugger
-		if (!vd_connection)
-			vd_connection = PxVisualDebuggerExt::createConnection(physics->getPvdConnectionManager(), 
-			"localhost", 5425, 100, PxVisualDebuggerExt::getAllConnectionFlags());
+		// Create a link to the PhysX Visual Debugger
+		if (!pvd)
+		{
+			pvd = PxCreatePvd(*foundation);
+			PxPvdTransport* transport = PxDefaultPvdFileTransportCreate("C:\\Users\\danie\\Desktop\\Streamed\\PvdCapture.pxd2");
+			pvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
+		}
 
-		//create a deafult material
+		if (!pvd)
+			throw new Exception("PhysicsEngine::PxInit, Could not initialise the PVD component.");
+
+		//create a default material
 		CreateMaterial();
 	}
 
+	// For the release build.
 	void PxRelease()
 	{
-		if (vd_connection)
-			vd_connection->release();
+		if (pvd)
+			pvd->release();
 		if (cooking)
 			cooking->release();
 		if (physics)
@@ -207,7 +216,7 @@ namespace PhysicsEngine
 
 	void DynamicActor::SetKinematic(bool value, PxU32 index)
 	{
-		((PxRigidDynamic*)actor)->setRigidDynamicFlag(PxRigidDynamicFlag::eKINEMATIC, value);
+		((PxRigidDynamic*)actor)->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, value);
 	}
 
 	StaticActor::StaticActor(const PxTransform& pose)
@@ -319,8 +328,8 @@ namespace PhysicsEngine
 
 	void Scene::SelectNextActor()
 	{
-		std::vector<PxRigidDynamic*> actors(px_scene->getNbActors(PxActorTypeSelectionFlag::eRIGID_DYNAMIC));
-		if (actors.size() && (px_scene->getActors(PxActorTypeSelectionFlag::eRIGID_DYNAMIC, (PxActor**)&actors.front(), (PxU32)actors.size())))
+		std::vector<PxRigidDynamic*> actors(px_scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC));
+		if (actors.size() && (px_scene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, (PxActor**)&actors.front(), (PxU32)actors.size())))
 		{
 			if (selected_actor)
 			{
@@ -350,8 +359,7 @@ namespace PhysicsEngine
 
 	std::vector<PxActor*> Scene::GetAllActors()
 	{
-		physx::PxActorTypeSelectionFlags selection_flag = PxActorTypeSelectionFlag::eRIGID_DYNAMIC | PxActorTypeSelectionFlag::eRIGID_STATIC | 
-			PxActorTypeSelectionFlag::eCLOTH;
+		physx::PxActorTypeFlags selection_flag = PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC | PxActorTypeFlag::eCLOTH;
 		std::vector<PxActor*> actors(px_scene->getNbActors(selection_flag));
 		px_scene->getActors(selection_flag, (PxActor**)&actors.front(), (PxU32)actors.size());
 		return actors;

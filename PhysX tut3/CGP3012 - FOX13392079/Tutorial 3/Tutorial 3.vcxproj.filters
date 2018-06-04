@@ -71,7 +71,7 @@
     <ClCompile Include="Extras\Renderer.cpp">
       <Filter>Source Files\Extras</Filter>
     </ClCompile>
-    <ClCompile Include="Tutorial 3.cpp">
+    <ClCompile Include="PhysicsGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
