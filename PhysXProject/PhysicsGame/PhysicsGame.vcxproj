@@ -32,6 +32,7 @@
     <ClInclude Include="VisualDebugger.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CreateLevels.cpp" />
     <ClCompile Include="Extras\Camera.cpp" />
     <ClCompile Include="Extras\GLFontRenderer.cpp" />
     <ClCompile Include="Extras\Renderer.cpp" />
@@ -95,8 +96,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\danie\Documents\GitHub\PhysX-3.4\PxShared\include;C:\Users\danie\Documents\GitHub\PhysX-3.4\PhysX_3.4\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files (x86)\NVIDIA Corporation\PhysX Visual Debugger 3;C:\Users\danie\Documents\GitHub\PhysX-3.4\PxShared\lib\vc15win64;C:\Users\danie\Documents\GitHub\PhysX-3.4\PhysX_3.4\Lib\vc15win64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\danie\Documents\GitHub\PhysXProject\PhysXProject\PhysicsGame\Graphics\include\win32\GL;C:\Users\danie\Documents\GitHub\PhysX-3.4\PxShared\include;C:\Users\danie\Documents\GitHub\PhysX-3.4\PhysX_3.4\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\danie\Documents\GitHub\PhysX-3.4\PxShared\lib\vc15win64;C:\Users\danie\Documents\GitHub\PhysXProject\PhysXProject\PhysicsGame\Graphics\lib\win64\glut;C:\Users\danie\Documents\GitHub\PhysX-3.4\PhysX_3.4\Lib\vc15win64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -120,7 +121,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Users\danie\Documents\GitHub\PhysX-3.4\PhysX_3.4\Lib\vc15win64;.\Graphics\lib\win64\glut</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\danie\Documents\GitHub\PhysX-3.4\PhysX_3.4\Lib\vc15win64</AdditionalLibraryDirectories>
       <AdditionalDependencies>PxPvdSDKDEBUG_x64.lib;PxFoundationDEBUG_x64.lib;PxTaskDEBUG_x64.lib;PhysX3VehicleDEBUG.lib;PhysX3ExtensionsDEBUG.lib;PhysX3DEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

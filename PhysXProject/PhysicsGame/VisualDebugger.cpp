@@ -32,8 +32,6 @@ namespace VisualDebugger
 	void KeyRelease(unsigned char key, int x, int y);
 	void KeyPress(unsigned char key, int x, int y);
 
-	void motionCallback(int x, int y);
-	void mouseCallback(int button, int state, int x, int y);
 	void exitCallback(void);
 
 	void RenderScene();
@@ -72,7 +70,7 @@ namespace VisualDebugger
 		Renderer::InitWindow(window_name, width, height);
 		Renderer::Init();
 
-		camera = new Camera(PxVec3(0.0f, 105.0f, -5.0f), PxVec3(0.0f, -90.0f, PxPi), 5.0f);
+		camera = new Camera(PxVec3(0.0f, 105.0f, -5.0f), PxVec3(0.0f, -90.0f, PxPi), 0.0f);
 
 		//initialise HUD
 		HUDInit();
@@ -86,15 +84,8 @@ namespace VisualDebugger
 		glutSpecialFunc(KeySpecial);
 		glutKeyboardUpFunc(KeyRelease);
 
-		//mouse
-		glutMouseFunc(mouseCallback);
-		glutMotionFunc(motionCallback);
-
 		//exit
 		atexit(exitCallback);
-
-		//init motion callback
-		motionCallback(0,0);
 	}
 
 	// ===============
@@ -134,7 +125,7 @@ namespace VisualDebugger
 		hud.AddLine(INDICATOR, "");
 		hud.AddLine(INDICATOR, "");
 		hud.AddLine(INDICATOR, "");
-		hud.AddLine(INDICATOR, "");
+		hud.AddLine(INDICATOR, "     Level: " + std::to_string(PhysicsEngine::LevelCount));
 		hud.AddLine(INDICATOR, "");
 		hud.AddLine(INDICATOR, "");
 		hud.AddLine(INDICATOR, "");
@@ -175,9 +166,9 @@ namespace VisualDebugger
 		hud.AddLine(NEXTLEVEL, "");
 		hud.AddLine(NEXTLEVEL, "");
 		hud.AddLine(NEXTLEVEL, "");
-		hud.AddLine(NEXTLEVEL, "          Level " + std::to_string(scene->LevelCount));
-		hud.AddLine(NEXTLEVEL, "            Complete!");
-		hud.AddLine(NEXTLEVEL, "     Press F4 to Continue!");
+		hud.AddLine(NEXTLEVEL, "                Level: " + std::to_string(PhysicsEngine::LevelCount - 1));
+		hud.AddLine(NEXTLEVEL, "               Complete!");
+		hud.AddLine(NEXTLEVEL, "    Press Enter to Continue!");
 
 		// ===========
 		// Win Screen
@@ -281,89 +272,51 @@ namespace VisualDebugger
 		scene->Update(delta_time);
 	}
 
-	// ===========================================
-	// User Defined Keyboard Handlers - Key Press
-	// ===========================================
-	void UserKeyPress(int key)
-	{
-		switch (toupper(key))
-		{
-		//implement your own
-		case 'R':
-			scene->ExampleKeyPressHandler();
-			break;
-		default:
-			break;
-		}
-	}
-
-	// =============================================
+	// ============================================
 	// User Defined Keyboard Handlers - Key Release
-	// =============================================
+	// ============================================
 	void UserKeyRelease(int key)
 	{
 		switch (toupper(key))
 		{
-		//implement your own
 		case 'R':
-			scene->ExampleKeyReleaseHandler();
+			disableMove = false;
+			scene->GetSelectedActor()->setGlobalPose(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
+			scene->GetSelectedActor()->putToSleep();
+			scene->GetSelectedActor()->clearForce();
+			scene->GetSelectedActor()->clearTorque();
+			break;
+		// ==================
+		// Refresh the Scene
+		// ==================
+		case 13:
+			scene->Reset();
+			leftToRight = 0;
+			velocity = 0;
+			disableMove = false;
+			hud_show = false;
 			break;
 		default:
 			break;
 		}
 	}
-
-	// ==========================================
-	// User Defined Keyboard Handlers - Key Hold
-	// ==========================================
-	void UserKeyHold(int key)
-	{
-	}
-
-	// ===========================
-	// handle camera control keys
-	// ===========================
-	/*
-	void CameraInput(int key)
-	{
-		switch (toupper(key))
-		{
-		case 'W':
-			camera->MoveForward(delta_time);
-			break;
-		case 'S':
-			camera->MoveBackward(delta_time);
-			break;
-		case 'A':
-			camera->MoveLeft(delta_time);
-			break;
-		case 'D':
-			camera->MoveRight(delta_time);
-			break;
-		case 'Q':
-			camera->MoveUp(delta_time);
-			break;
-		case 'Z':
-			camera->MoveDown(delta_time);
-			break;
-		default:
-			break;
-		}
-	} */
 	
-	// =======================
-	// Handling the space bar
-	// =======================
+	// =========================================
+	// User Defined Keyboard Handlers - Key Hold
+	// =========================================
+
 	void ForceInput(int key)
 	{	
 		if (!scene->GetSelectedActor())
 			return;
-
 		switch (toupper(key))
 		{
 		case ' ':
-			disableMove = true;
-			scene->GetSelectedActor()->setLinearVelocity(PxVec3(leftToRight, 0, 1) * velocity);
+			if (disableMove == false)
+			{
+				disableMove = true;
+				scene->GetSelectedActor()->setLinearVelocity(PxVec3(leftToRight, 0, 1) * velocity);
+			}
 			break;
 		default:
 			break;
@@ -407,27 +360,6 @@ namespace VisualDebugger
 		// ==================
 		case GLUT_KEY_F10:
 			scene->Pause(!scene->Pause());
-			break;
-		// ===============
-		// Reset the Ball
-		// ===============
-		case GLUT_KEY_F11:
-			disableMove = false;
-			scene->GetSelectedActor()->setGlobalPose(PxTransform(PxVec3(0.0f, 0.5f, -50.0f)));
-			scene->GetSelectedActor()->putToSleep();
-			scene->GetSelectedActor()->clearForce();
-			scene->GetSelectedActor()->clearTorque();
-			break;
-		// ==================
-		// Refresh the Scene
-		// ==================
-		case GLUT_KEY_F4:
-			//reset scene
-			scene->Reset();
-			leftToRight = 0;
-			velocity = 0;
-			disableMove = false;
-			hud_show = false;
 			break;
 		// ======================
 		// Setting the Direction
@@ -480,8 +412,6 @@ namespace VisualDebugger
 		//exit
 		if (key == 27)
 			exit(0);
-
-		UserKeyPress(key);
 	}
 
 	//handle key release
@@ -491,39 +421,16 @@ namespace VisualDebugger
 		UserKeyRelease(key);
 	}
 
-	//handle holded keys
+	// handle holded keys
 	void KeyHold()
 	{
 		for (int i = 0; i < MAX_KEYS; i++)
 		{
 			if (key_state[i]) // if key down
 			{
-				//CameraInput(i);
 				ForceInput(i);
-				UserKeyHold(i);
 			}
 		}
-	}
-
-	//mouse handling
-	int mMouseX = 0;
-	int mMouseY = 0;
-
-	void motionCallback(int x, int y)
-	{
-		int dx = mMouseX - x;
-		int dy = mMouseY - y;
-
-		camera->Motion(dx, dy, delta_time);
-
-		mMouseX = x;
-		mMouseY = y;
-	}
-
-	void mouseCallback(int button, int state, int x, int y)
-	{
-		mMouseX = x;
-		mMouseY = y;
 	}
 
 	void ToggleRenderMode()
