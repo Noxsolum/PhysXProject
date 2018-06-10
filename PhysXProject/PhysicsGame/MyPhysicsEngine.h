@@ -12,7 +12,7 @@ namespace PhysicsEngine
 	// ==============
 	// Level Counter
 	// ==============
-	static int LevelCount = 1;
+	static int LevelCount = 15;
 
 	// ========
 	// Colours
@@ -110,7 +110,7 @@ namespace PhysicsEngine
 					//check if eNOTIFY_TOUCH_FOUND trigger
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
 					{
-						LevelCount = LevelCount + 1;
+						LevelCount++;
 						trigger = true;
 					}
 					//check if eNOTIFY_TOUCH_LOST trigger
@@ -199,6 +199,9 @@ namespace PhysicsEngine
 		bool Winner = false;
 		MyScene() : Scene() {};
 
+		// =================
+		// Define Each Level
+		// =================
 		void createLvl1();
 		void createLvl2();
 		void createLvl3();
@@ -209,6 +212,11 @@ namespace PhysicsEngine
 		void createLvl8();
 		void createLvl9();
 		void createLvl10();
+		void createLvl11();
+		void createLvl12();
+		void createLvl13();
+		void createLvl14();
+		void createLvl15();
 
 		void AddGravity(StaticSphere* planet, DynamSphere* satellite);
 		void AddGravityDynamic(DynamSphere* planet, DynamSphere* satellite);
@@ -282,34 +290,19 @@ namespace PhysicsEngine
 				createLvl10();
 				break;
 			case 11:
-				createLvl1();
+				createLvl11();
 				break;
 			case 12:
-				createLvl2();
+				createLvl12();
 				break;
 			case 13:
-				createLvl3();
+				createLvl13();
 				break;
 			case 14:
-				createLvl4();
+				createLvl14();
 				break;
 			case 15:
-				createLvl5();
-				break;
-			case 16:
-				createLvl6();
-				break;
-			case 17:
-				createLvl7();
-				break;
-			case 18:
-				createLvl8();
-				break;
-			case 19:
-				createLvl9();
-				break;
-			case 20:
-				createLvl10();
+				createLvl15();
 				break;
 			default:
 				break;
